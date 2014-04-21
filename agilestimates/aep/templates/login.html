@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support{% endblock %}
+
+{% block menuItems %}
+<li class="active"><a href="/aep/login">Login</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-6">
+			<p class="lead">Welcome to Agile Estimates Support</p>
+			<form class="form-horizontal" role="form" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+			{% csrf_token %}
+			{% if form.errors %}
+				<div class="alert alert-danger">
+					Your username or password did not match. Please try again.
+				</div>
+			{% endif %}
+				<div class="form-group">
+                    <label for="id_old_password" class="col-sm-2 control-label">{{ form.username.label_tag }}</label>
+                    <div class="col-sm-5">
+                        {{ form.username}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_old_password" class="col-sm-2 control-label">{{ form.password.label_tag }}</label>
+                    <div class="col-sm-5">
+                        {{ form.password}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success">Login</button>
+                    </div>
+                </div>
+				<input type="hidden" name="next" value="/aep" />
+			</form>
+		</div>
+		<div class="col-md-6">
+			<p class="lead">For assistance with the system, please e-mail or call us</p>
+			<address>
+				<strong>Support</strong><br>
+				<a href="mailto:marcelocure@gmail.com">marcelocure@gmail.com</a>
+			</address>
+			<address>
+				<strong>Marcelo Cure Desenvolvimento de Sistemas Ltda.</strong><br>
+				<abbr title="Phone">P:</abbr> (51) 9657-5167
+			</address>
+		</div>
+	</div>
+</div>
+{% endblock %}

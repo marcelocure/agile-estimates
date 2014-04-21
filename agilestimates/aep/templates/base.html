@@ -1,0 +1,79 @@
+{% load admin_static %}
+{% load staticfiles %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/navbar-fixed-top.css' %}" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/vlm/">
+            <img src="{% static 'logo_small.png' %}" class="img-responsive" alt="Responsive image" >
+          </a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            {% block menuItems %}
+            <li><a href="index.html">Home</a></li>
+            <li class="active"><a href="summary_report.html">Summary Report</a></li>
+            <li><a href="detail_report.html">Detail Report</a></li>
+            <li><a href="agent_download.html">Agent Download</a></li>
+            <li><a href="account_management.html">Account Management</a></li>
+            {% endblock %}
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    
+    {% block mainContainer %}{% endblock %}
+
+    <hr>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-7">
+            <p>
+            &copy; 2014 Marcelo Cure Desenvolvimento de Sistemas Ltda. &middot; All Rights Reserved &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+          </div>
+          <div class="col-md-3"></div>
+          <div class="col-md-2">
+            <p class="text-right">
+            <a href="http://www.cure.com/">cure.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  </body>
+</html>

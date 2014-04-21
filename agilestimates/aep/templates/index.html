@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li class="active"><a href="/vlm/">Home</a></li>
+<li><a href="/aep/summary/">Summary Report</a></li>
+<li><a href="/aep/detail_list/{{company_id}}">Detail Report</a></li>
+<li><a href="/aep/download/">Agent Download</a></li>
+<li><a href="/aep/account/">Account Management</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home</li>
+		</ol>
+	</div>
+	<div class="row">
+		<div class="jumbotron">
+			<h2>Welcome to the Agile Estimates Support Portal</h2>
+			<p class="lead">Please use the menu bar to operate the system</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<h3>Webinar</h3>
+			<p>Sign up for the next free webinar:</p>
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="E-mail">
+				<span class="input-group-btn">
+					<button class="btn btn-primary" type="button ">Subscribe!</button>
+				</span>
+			</div><!-- /input-group -->  
+		</div>
+		<div class="col-md-6">
+			<h3>Welcome back, {{ userInfo.first_name }}!</h3>
+			<p>Your last login was on <strong>{{ userInfo.last_login }}</strong></p>
+		</div>
+	</div>
+</div> <!-- /container -->
+{% endblock %}

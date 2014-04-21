@@ -1,0 +1,6 @@
+{% extends "logged_out.html" %}
+
+{% block content %}
+Hello from a custom logout template --> status {{ authStat }}
+{{ block.super }}
+{% endblock %}
