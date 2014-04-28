@@ -6,10 +6,9 @@
 
 {% block menuItems %}
 <li class="active"><a href="/vlm/">Home</a></li>
-<li><a href="/aep/summary/">Summary Report</a></li>
-<li><a href="/aep/detail_list/{{company_id}}">Detail Report</a></li>
-<li><a href="/aep/download/">Agent Download</a></li>
-<li><a href="/aep/account/">Account Management</a></li>
+<li><a href="/aep/scan_project/">Scan Project</a></li>
+<li><a href="/aep/report/{{company_id}}">Reports</a></li>
+<li><a href="/aep/contact/">Contact</a></li>
 <li><a href="/aep/logout/">Logout</a></li>
 {% endblock %}
 
@@ -38,7 +37,7 @@
 			</div><!-- /input-group -->  
 		</div>
 		<div class="col-md-6">
-			<h3>Welcome back, {{ userInfo.first_name }}!</h3>
+			<h3>Welcome back, {{ userInfo }}!</h3>
 			<p>Your last login was on <strong>{{ userInfo.last_login }}</strong></p>
 		</div>
 	</div>
