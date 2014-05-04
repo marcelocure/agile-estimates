@@ -28,11 +28,11 @@ DATABASES = {
 
 ALLOWED_HOSTS = ['*']
 
-STATIC_ROOT = '/home/marcelocure/github/agile-estimates/agilestimates/aep/all_static/'
+STATIC_ROOT = 'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/aep/all_static/'
 
 TEMPLATE_DIRS = (
 
-    '/home/marcelocure/github/agile-estimates/agilestimates/aep/templates',
+    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/aep/templates',
 )
 
 STATIC_URL = '/static/'
@@ -41,7 +41,7 @@ SECRET_KEY = '80-yvv(ybl%*a87dt2u&1wd03lq61tm_1wfn(k5_dechsjzk+d'
 
 STATICFILES_DIRS = (
 
-    '/home/marcelocure/github/agile-estimates/agilestimates/all_static',
+    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/all_static',
 
 )
 

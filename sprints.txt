@@ -1,0 +1,35 @@
+Administrador:
+
+	Cadastros:
+		- clientes
+		- perfis
+		- usuarios
+		- equipes
+		- projetos
+
+	Relatórios
+		- Quantidade de pontos entregues por sprint X time
+				gerar um gráfico para cada time mostrando pontos X sprints
+		- Quantidade de testes unitários criados por sprint X time
+				gerar um gráfico para cada time mostrando testes unitários X sprints
+		- Quantidade de pontos estimados X quantidade de pontos entregues para cada sprint
+				gerar um gráfico para cada time mostrando pontos estimados X pontos entregues para cada sprint
+		- Quantidade de pontos entregues X testes unitários para cada sprint
+				gerar um gráfico para cada time mostrando pontos estimados X pontos entregues para cada sprint
+		- Quantidade de estórias entregues por sprint por projeto
+				gerar um gráfico para cada time mostrando o número de estórias entregues por sprint
+		- Burndown para cada sprint de cada projeto
+
+	Consultas
+		- times que já rodaram o scan no final da sprint
+
+
+Time:
+	Cadastros
+		- sprint (data inicio, data fim, pontos estimados, pontos entregues)
+
+	Relatórios
+		
+
+	Scan
+		- scan projetos no final da sprint
