@@ -24,7 +24,11 @@ DATABASES = {
     }
 }
 
-
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+#     'django.template.loaders.eggs.Loader',
+)
 
 ALLOWED_HOSTS = ['*']
 
@@ -33,6 +37,7 @@ STATIC_ROOT = 'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/a
 TEMPLATE_DIRS = (
 
     'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/aep/templates',
+    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/agilestimates/template',
 )
 
 STATIC_URL = '/static/'

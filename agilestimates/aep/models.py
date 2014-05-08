@@ -11,14 +11,3 @@ class customer(models.Model):
 
     def __unicode__(self):
     	return self.name
-
-
-class profile(models.Model):
-    name = models.CharField(max_length=30)
-
-    class Meta:
-    	verbose_name="Profile"
-    	verbose_name_plural = "Profiles"
-
-    def __unicode__(self):
-    	return self.name
