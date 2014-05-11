@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li class="active"><a href="/aep/admin">Home</a></li>
+<li><a href="/aep/customers/">Customers</a></li>
+<li><a href="/aep/users">Users</a></li>
+<li><a href="/aep/profiles">Profiles</a></li>
+<li><a href="/aep/projects">Projects</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home > Projects</li>
+		</ol>
+	</div>
+	<div class="row">	
+		<div class="col-md-6">
+			<h2>Project Registration</h2>
+			<br>
+			<form method="post" action="/aep/save_project"> 
+			{% csrf_token %}
+			<table>
+				<tr>
+					<td>Name: </td><td><input type="text" name="name" id="name" size="30"></td>
+				</tr>
+				<tr>
+					<td>Customers: </td>
+					<td><select name="customer" id="customer">
+					<option value=9999>-- Choose --</option>
+					{% for id, name in customers %}
+						<option value={{ id }}>{{ name }}</option>
+					{% endfor %}
+					</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td><td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" value="Save" class="btn btn-success"></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+		<div class="col-md-6">
+			<h2>Projects</h2>
+			<br>
+			<table border="1" width="100%" cellpadding="2" cellspacing="2">
+				<tr bgcolor="00B2EE">
+					<td><b>Id</b></td>
+					<td><b>Name</b></td>
+					<td><b>Customer</b></td>
+					<td><b>Actions</b></td>
+				</tr>
+
+				{% for id, name, customer in projects %}
+			    	<tr>
+			    		<td>{{ id }}</td>
+			    		<td>{{ name }}</td>
+			    		<td>{{ customer }}</td>
+			    		<td align="center">
+			    			<a href="/aep/delete_project/{{id}}"><img src="{% static 'admin/img/icon_deletelink.gif' %}">
+			    			</a>&nbsp;&nbsp;&nbsp;
+			    			<a href="/aep/edit_project/{{id}}"><img src="{% static 'admin/img/icon_changelink.gif' %}"></a>
+			    		</td>
+			    	</tr>
+			    {% endfor %}
+			</table>
+		</div>
+	</div>
+</div>
+<br><br><br><br><br>
+{% endblock %}

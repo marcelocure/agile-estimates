@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li class="active"><a href="/aep/admin">Home</a></li>
+<li><a href="/aep/customers/">Customers</a></li>
+<li><a href="/aep/users">Users</a></li>
+<li><a href="/aep/profiles">Profiles</a></li>
+<li><a href="/aep/projects">Projects</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home > Edit Profile</li>
+		</ol>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<h2>Profile Update</h2>
+			<br>
+			<form method="post" action="/aep/save_edit_profile"> 
+			{% csrf_token %}
+			<table>
+				{% for id, name in profiles %}
+				<input type="hidden" name="id" value={{ id }}>
+				<tr>
+					<td>Id: </td><td>{{ id }}</td>
+				</tr>
+				<tr>
+					<td>Description: </td><td><input type="text" name="name" id="name" value="{{ name }}"></td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>&nbsp;</td><td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td><input type="reset" value="Cancel" class="btn btn-success" onclick="window.location='/aep/profiles';"></td>
+					<td><input type="submit" value="Save" class="btn btn-success"></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+	</div>
+</div>
+<br><br><br><br><br>
+{% endblock %}
