@@ -36,7 +36,7 @@ def is_there_a_valid_session(request, profile):
 	session_id = get_session_id(request)
 	session_username = get_session_username(request)
 	conn, cursor = views.connect()
-	cursor.execute("select count(1) from aep_session s, aep_user u, aep_profile p where s.username = u.username and u.id_profile_id = p.id"+
+	cursor.execute("select count(1) from aep_session s, aep_user u, aep_profile p where s.username = u.username and u.id_profile = p.id"+
 		" and s.username = '{0}' and s.id = {1} and p.name = '{2}'".format(session_username, session_id, profile))
 	session_count = cursor.fetchone()[0]
 	if session_count > 0:

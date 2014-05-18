@@ -36,7 +36,7 @@ def get_customer_list():
 
 def get_user_list():
     conn, cursor = connect()
-    cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile from aep_user u, aep_profile p where p.id = u.id_profile_id order by u.id")
+    cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile from aep_user u, aep_profile p where p.id = u.id_profile order by u.id")
     rows = cursor.fetchall()
     return {'users': rows, 'profiles': get_profile_list()['profiles']}
 
@@ -44,7 +44,7 @@ def get_user_list():
 def get_user(id):
     conn, cursor = connect()
     cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile "+
-        "from aep_user u, aep_profile p where p.id = u.id_profile_id and u.id = {0}".format(id))
+        "from aep_user u, aep_profile p where p.id = u.id_profile and u.id = {0}".format(id))
     rows = cursor.fetchall()
     return {'users': rows, 'profiles': get_profile_list()['profiles']}
 
@@ -52,14 +52,14 @@ def get_user(id):
 def get_project(id):
     conn, cursor = connect()
     cursor.execute("select p.id, p.name, c.name as customer "+
-        "from aep_project p, aep_customer c where c.id = p.customer_id and p.id = {0}".format(id))
+        "from aep_project p, aep_customer c where c.id = p.id_customer and p.id = {0}".format(id))
     rows = cursor.fetchall()
     return {'projects': rows, 'customers': get_customer_list()['customers']}
 
 
 def get_project_list():
     conn, cursor = connect()
-    cursor.execute("select p.id, p.name, c.name as customer from aep_project p, aep_customer c where c.id = p.customer_id order by p.id")
+    cursor.execute("select p.id, p.name, c.name as customer from aep_project p, aep_customer c where c.id = p.id_customer order by p.id")
     rows = cursor.fetchall()
     return {'projects': rows, 'customers': get_customer_list()['customers']}
 
@@ -83,7 +83,7 @@ def save_project(request):
     print customer
 
     conn, cursor = connect()
-    cursor.execute("insert into aep_project (name, customer_id) "+
+    cursor.execute("insert into aep_project (name, id_customer) "+
                    "values('{0}',{1})".format(name, customer))
     conn.commit()
 
@@ -111,7 +111,7 @@ def save_edit_project(request):
     name = request.POST['name']
     customer = request.POST['customer']
     conn, cursor = connect()
-    cursor.execute("update aep_project set name = '{0}', customer_id = {1}  where id = {2}".
+    cursor.execute("update aep_project set name = '{0}', id_customer = {1}  where id = {2}".
                             format(name, customer, id))
     conn.commit()
 
@@ -126,7 +126,7 @@ def save_user(request):
     profile = request.POST['profile']
 
     conn, cursor = connect()
-    cursor.execute("insert into aep_user (name, username, password, email, id_profile_id) "+
+    cursor.execute("insert into aep_user (name, username, password, email, id_profile) "+
                    "values('{0}','{1}','{2}', '{3}', {4})".format(name, username, password, email, profile))
     conn.commit()
 
@@ -141,7 +141,7 @@ def save_edit_user(request):
     email = request.POST['email']
     profile = request.POST['profile']
     conn, cursor = connect()
-    cursor.execute("update aep_user set name = '{0}', username = '{1}', password = '{2}', email = '{3}', id_profile_id = {4} where id = {5}".
+    cursor.execute("update aep_user set name = '{0}', username = '{1}', password = '{2}', email = '{3}', id_profile = {4} where id = {5}".
                             format(name, username, password, email, profile, id))
     conn.commit()
 
@@ -265,7 +265,7 @@ def login_process(request):
     conn, cursor = connect()
     
     cursor.execute("select u.name, p.name from aep_user u, aep_profile p " +
-                "where u.id_profile_id = p.id and u.username = '{0}' and u.password = '{1}'".format(username, password))
+                "where u.id_profile = p.id and u.username = '{0}' and u.password = '{1}'".format(username, password))
     name, profile = cursor.fetchone()
     
     if name is None:
