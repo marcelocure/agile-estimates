@@ -41,6 +41,20 @@ def get_user_list():
     return {'users': rows, 'profiles': get_profile_list()['profiles']}
 
 
+def get_user_list_from_project(id_project):
+    conn, cursor = connect()
+    cursor.execute("select u.id, u.name, u.username from aep_user u, aep_user_project p where p.id_project = {0} and u.id = p.id_user order by u.id".format(id_project))
+    rows = cursor.fetchall()
+    return {'users_registered': rows}
+
+
+def get_user_list_not_in_project(id_project):
+    conn, cursor = connect()
+    cursor.execute("select u.id, u.name, u.username from aep_user u where u.id not in (select p.id_user from aep_user_project p where p.id_project = {0}) order by u.id".format(id_project))
+    rows = cursor.fetchall()
+    return {'users_not_registered': rows}
+
+
 def get_user(id):
     conn, cursor = connect()
     cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile "+
@@ -79,9 +93,7 @@ def project(request):
 def save_project(request):
     name = request.POST['name']
     customer = request.POST['customer']
-    print name
-    print customer
-
+    
     conn, cursor = connect()
     cursor.execute("insert into aep_project (name, id_customer) "+
                    "values('{0}',{1})".format(name, customer))
@@ -103,16 +115,36 @@ def edit_user(request, id):
 
 
 def edit_project(request, id):
-    return render_to_response('edit_project.html', get_project(id), context_instance=RequestContext(request))
+    return render_to_response('edit_project.html',{'users_registered': get_user_list_from_project(id)['users_registered'], 'users_not_registered': get_user_list_not_in_project(id)['users_not_registered'], 'projects': get_project(id)['projects'], 'customers': get_project(id)['customers']}, context_instance=RequestContext(request))
+
+
+def parse_post(post_data):
+    s = str(post_data)
+    if s.find("u'users[]':") == -1:
+        return []
+    pos = s.find("u'users[]':") + 13
+    s = s[pos:]
+    s = s[:s.find("]")]
+    s =  s.replace("u","").replace(" ","").replace("'","")
+    return s.split(",")
 
 
 def save_edit_project(request):
     id = request.POST['id']
     name = request.POST['name']
     customer = request.POST['customer']
+    print request.POST
+    users = parse_post(request.POST)
+    print users
+
     conn, cursor = connect()
     cursor.execute("update aep_project set name = '{0}', id_customer = {1}  where id = {2}".
                             format(name, customer, id))
+    
+    cursor.execute("delete from aep_user_project where id_project = {0}".format(id))
+    for user in users:
+        cursor.execute("insert into aep_user_project (id_user, id_project) values({0},{1})".format(user, id))
+
     conn.commit()
 
     return project(request)
@@ -166,7 +198,6 @@ def get_customer(id):
     conn, cursor = connect()
     cursor.execute("select id, name, country, operation_area from aep_customer where id = {0}".format(id))
     rows = cursor.fetchall()
-    print rows
     return {'customers': rows}
 
 
@@ -206,7 +237,6 @@ def get_profile(id):
     conn, cursor = connect()
     cursor.execute("select id, name from aep_profile where id = {0}".format(id))
     rows = cursor.fetchall()
-    print rows
     return {'profiles': rows}
 
 def profile(request):

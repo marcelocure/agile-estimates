@@ -30,10 +30,10 @@
 				{% for id, name, customer in projects %}
 				<input type="hidden" name="id" value={{ id }}>
 				<tr>
-					<td>Id: </td><td>{{ id }}</td>
+					<td>Id: </td><td>{{ id }}</td><td>&nbsp;</td>
 				</tr>
 				<tr>
-					<td>Name: </td><td><input type="text" name="name" id="name" size="30" value="{{ name }}"></td>
+					<td>Name: </td><td><input type="text" name="name" id="name" size="30" value="{{ name }}"></td><td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Customer: </td>
@@ -45,9 +45,22 @@
 							<option value={{ id }}>{{ name }}</option>
 						{% endif %}
 					{% endfor %}
+					</select>
 					</td>
+					<td>&nbsp;</td>
 				</tr>
 				{% endfor %}
+				<tr>
+					<td>Members: </td>
+					<td>
+					{% for id, name, username in users_not_registered %}
+						<input type="checkbox" name="users[]" value="{{ id }}"/>{{ name }} ({{ username }})<br>
+					{% endfor %}
+					{% for id, name, username in users_registered %}
+						<input type="checkbox" name="users[]" value="{{ id }}" checked/>{{ name }} ({{ username }})<br>
+					{% endfor %}
+					</td>
+				</tr>
 				<tr>
 					<td>&nbsp;</td><td>&nbsp;</td>
 				</tr>

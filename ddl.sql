@@ -10,7 +10,7 @@ DROP TABLE aep_profile;
 --
 CREATE TABLE aep_profile(id serial primary key, name varchar(30));
 CREATE TABLE aep_customer(id serial primary key, name varchar(60), country varchar(30), operation_area varchar(60));
-CREATE TABLE aep_user(id serial primary key, name varchar(30), username varchar(30), password varchar(32), id_profile integer);
+CREATE TABLE aep_user(id serial primary key, name varchar(30), username varchar(30), password varchar(32), email varchar(100), id_profile integer);
 ALTER TABLE aep_user add constraint fk_user_profile foreign key (id_profile) references aep_profile (id);
 CREATE TABLE aep_session(id serial primary key, username varchar(30), login_date date);
 CREATE TABLE aep_project(id serial primary key, name varchar(60), id_customer integer);
