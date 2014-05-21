@@ -1,10 +1,10 @@
 from django.shortcuts import render, render_to_response, RequestContext
 import psycopg2
 import session_manager
+import crypt_utils
+from django.db import connection as conn
 
-# Create your views here.
 def connect():
-    conn =  psycopg2.connect("dbname='postgres' user='postgres' host='localhost' password='t00thbrush'")
     return conn, conn.cursor()
  
 
@@ -154,6 +154,7 @@ def save_user(request):
     name = request.POST['name']
     username = request.POST['username']
     password = request.POST['password']
+    password = crypt_utils.encrypt(password)
     email = request.POST['email']
     profile = request.POST['profile']
 
@@ -287,20 +288,26 @@ def save_customer(request):
     conn.commit()
 
     return customer(request)
+def get_encrypted_password(username):
+    conn, cursor = connect()
+    cursor.execute("select password from aep_user where username = '{0}'".format(username))
+    return cursor.fetchone()[0]
 
 
 def login_process(request):
     username = request.POST['username']
     password = request.POST['password']
     conn, cursor = connect()
+    encrypted_password = get_encrypted_password(username)
     
     cursor.execute("select u.name, p.name from aep_user u, aep_profile p " +
-                "where u.id_profile = p.id and u.username = '{0}' and u.password = '{1}'".format(username, password))
+                "where u.id_profile = p.id and u.username = '{0}'".format(username))
     name, profile = cursor.fetchone()
+    print crypt_utils.decrypt(encrypted_password)
+    print password
     
-    if name is None:
+    if name is None or crypt_utils.decrypt(encrypted_password) != password:
     	return render(request, 'login.html', {'error': 'username or password invalid'})
-    
     
     if profile == 'Admin':
         response = render(request, 'admin.html')
