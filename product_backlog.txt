@@ -1,5 +1,6 @@
-sprint 1 (Cadastros basicos)
+﻿sprint 1 (Cadastros basicos)
 	- Cadastro de usuários
+	- Cadastro de perfis
 	- Tela de login
 	- Cadastro de clientes
 	- Cadastro de projetos
