@@ -180,7 +180,6 @@ def save_edit_user(request):
 
     return user(request)
 
-
 def delete_user(request, id):
     conn, cursor = connect()
     cursor.execute("delete from aep_user where id = {0}".format(id))
@@ -188,12 +187,20 @@ def delete_user(request, id):
 
     return user(request)
 
-
 def customer(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
         return render_to_response('customers.html', get_customer_list(), context_instance=RequestContext(request))
     return render(request, 'login.html')
 
+def sprint(request):
+    if session_manager.is_there_a_valid_session(request, 'Team'):
+        return render_to_response('sprints.html', get_project_list(), context_instance=RequestContext(request))
+    return render(request, 'login.html')
+
+def scan(request):
+    if session_manager.is_there_a_valid_session(request, 'Team'):
+        return render_to_response('scan.html', get_project_list(), context_instance=RequestContext(request))
+    return render(request, 'login.html')
 
 def get_customer(id):
     conn, cursor = connect()

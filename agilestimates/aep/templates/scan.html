@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li><a href="/aep/sprints/">Sprint Registration</a></li>
+<li class="active"><a href="/aep/scan_project/">Scan Project</a></li>
+<li><a href="/aep/charts/">Charts</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home > Scan Project</li>
+		</ol>
+	</div>
+		<div class="col-md-6">
+			<h2>Scan Project</h2>
+			<br>
+			<form method="post" action="/aep/run_scan"> 
+			{% csrf_token %}
+			<table width="100%">
+				<tr>
+					<td>Project: </td>
+					<td><select name="project" id="project">
+					<option value=9999>-- Choose --</option>
+					{% for id, name in projects %}
+						<option value={{ id }}>{{ name }}</option>
+					{% endfor %}
+					</td>
+					<td align="right">
+						<input type="submit" value="Run Scan" class="btn btn-success">
+					</td>
+				<tr>
+				<tr>
+					<td valign="top">Log: </td><td colspan="3"><textarea rows="10" cols="100"></textarea></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+</div>
+<br><br><br><br><br>
+{% endblock %}

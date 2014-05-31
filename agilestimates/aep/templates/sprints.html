@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li class="active"><a href="/aep/sprints/">Sprint Registration</a></li>
+<li><a href="/aep/scan_project/">Scan Project</a></li>
+<li><a href="/aep/charts/">Charts</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home > Sprint Registration</li>
+		</ol>
+	</div>
+	<div class="row">	
+		<div class="col-md-6">
+			<h2>Sprint Registration</h2>
+			<br>
+			<form method="post" action="/aep/save_sprint"> 
+			{% csrf_token %}
+			<table>
+				<tr>
+					<td>Project: </td>
+					<td><select name="project" id="project">
+					<option value=9999>-- Choose --</option>
+					{% for id, name in projects %}
+						<option value={{ id }}>{{ name }}</option>
+					{% endfor %}
+					</td>
+				<qtr>
+				<tr>
+					<td>Description: </td><td><input type="text" name="description" id="description" size="30"></td>
+				</tr>
+				<tr>
+					<td>Start Date: </td><td><input type="text" name="start_date" id="start_date" size="10"> <img src="{% static 'admin/img/date.png' %}"></td>
+				</tr>
+				<tr>
+					<td>End Date: </td><td><input type="text" name="end_date" id="end_date" size="10"> <img src="{% static 'admin/img/date.png' %}"></td>
+				</tr>
+				<tr>
+					<td>Estimated Points: </td>
+					<td><input type="text" name="estimated_points" id="estimated_points" size="3"></td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td><td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" value="Save" class="btn btn-success"></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+	</div>
+</div>
+<br><br><br><br><br>
+{% endblock %}
