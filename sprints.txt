@@ -1,4 +1,4 @@
-Administrador:
+﻿Administrador:
 
 	Cadastros:
 		- clientes
@@ -39,7 +39,7 @@ Time:
 		- Quantidade de estórias entregues por sprint por projeto
 				gerar um gráfico mostrando o número de estórias entregues por sprint
 		- Burndown para a sprint corrente
-		
+
 
 	Scan
 		- scan projetos no final da sprint

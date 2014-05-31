@@ -5,7 +5,7 @@
 	- Cadastro de clientes
 	- Cadastro de projetos
 
-sprint 2 (Scan e sprints)
+sprint 2 (Scan e cadastro de sprints)
 	- Cadastro de sprints
 	- Scan parte 1
 

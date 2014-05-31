@@ -33,11 +33,22 @@
 					<td>Name: </td><td><input type="text" name="name" id="name" size="30"></td>
 				</tr>
 				<tr>
+					<td>Trello Board: </td><td><input type="text" name="trello_board" id="trello_board" size="30"></td>
+				</tr>
+				<tr>
 					<td>Customer: </td>
 					<td><select name="customer" id="customer">
 					<option value=9999>-- Choose --</option>
 					{% for id, name in customers %}
 						<option value={{ id }}>{{ name }}</option>
+					{% endfor %}
+					</td>
+				</tr>
+				<tr>
+					<td>Members: </td>
+					<td>
+					{% for id, name, username, profile in users %}
+						<input type="checkbox" name="users[]" value="{{ id }}"/>{{ name }} ({{ username }})<br>
 					{% endfor %}
 					</td>
 				</tr>

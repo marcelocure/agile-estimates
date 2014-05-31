@@ -75,7 +75,7 @@ def get_project_list():
     conn, cursor = connect()
     cursor.execute("select p.id, p.name, c.name as customer from aep_project p, aep_customer c where c.id = p.id_customer order by p.id")
     rows = cursor.fetchall()
-    return {'projects': rows, 'customers': get_customer_list()['customers']}
+    return {'projects': rows, 'customers': get_customer_list()['customers'], 'users': get_user_list()['users']}
 
 
 def user(request):
