@@ -1,4 +1,4 @@
-﻿DROP TABLE aep_sprint;
+﻿sssssDROP TABLE aep_sprint;
 DROP TABLE aep_user_project;
 DROP TABLE aep_session;
 DROP TABLE aep_project;
