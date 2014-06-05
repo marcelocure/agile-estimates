@@ -79,13 +79,28 @@ def project(request):
 def save_project(request):
     name = request.POST['name']
     customer = request.POST['customer']
+    trello_board = request.POST['trello_board']
     
     conn, cursor = connect()
-    cursor.execute("insert into aep_project (name, id_customer) "+
-                   "values('{0}',{1})".format(name, customer))
+    cursor.execute("insert into aep_project (name, id_customer, trello_board) "+
+                   "values('{0}',{1}, '{2}')".format(name, customer, trello_board))
     conn.commit()
 
     return project(request)
+
+def save_sprint(request):
+    project = request.POST['project']
+    description = request.POST['description']
+    start_date = request.POST['start_date']
+    end_date = request.POST['end_date']
+    estimated_points = request.POST['estimated_points']
+    
+    conn, cursor = connect()
+    cursor.execute("insert into aep_sprint (id_project, description, start_date, end_date, points_estimated) "+
+                   "values({0},'{1}','{2}','{3}',{4})".format(project, description, start_date, end_date, estimated_points))
+    conn.commit()
+
+    return sprint(request)
 
 
 def delete_project(request, id):
@@ -292,9 +307,11 @@ def admin(request):
 
 def login(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render(request, 'admin.html')
+        username = session_manager.get_session_username(request)
+        return render(request, 'admin.html', {'username': username})
     if session_manager.is_there_a_valid_session(request, 'Team'):
-        return render(request, 'team.html')
+        username = session_manager.get_session_username(request)
+        return render(request, 'team.html', {'username': username})
     return render(request, 'login.html')
 
 def get_encrypted_password(username):
@@ -319,8 +336,8 @@ def login_process(request):
     	return render(request, 'login.html', {'error': 'username or password invalid'})
     
     if profile == 'Admin':
-        response = render(request, 'admin.html')
+        response = render(request, 'admin.html', {'username': username})
     else:
-        response = render(request, 'team.html')
+        response = render(request, 'team.html', {'username': username})
 
     return session_manager.create_session(response, conn, cursor, username)
