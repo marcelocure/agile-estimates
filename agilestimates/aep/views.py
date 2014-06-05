@@ -8,20 +8,6 @@ def connect():
     return conn, conn.cursor()
  
 
-def index(request):
-    return render(request, 'index.html', {'userInfo':'cure'})
-
-
-def admin(request):
-    if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render(request, 'admin.html')
-    return render(request, 'login.html')
-
-
-def login(request):
-    return render(request, 'login.html')
-
-
 def logout(request):
     response = render(request, 'logout.html')
     return session_manager.delete_session(request, response)
@@ -295,6 +281,22 @@ def save_customer(request):
     conn.commit()
 
     return customer(request)
+
+def team(request):
+    return render(request, 'team.html', {'userInfo':'cure'})
+
+def admin(request):
+    if session_manager.is_there_a_valid_session(request, 'Admin'):
+        return render(request, 'admin.html')
+    return render(request, 'login.html')
+
+def login(request):
+    if session_manager.is_there_a_valid_session(request, 'Admin'):
+        return render(request, 'admin.html')
+    if session_manager.is_there_a_valid_session(request, 'Team'):
+        return render(request, 'team.html')
+    return render(request, 'login.html')
+
 def get_encrypted_password(username):
     conn, cursor = connect()
     cursor.execute("select password from aep_user where username = '{0}'".format(username))
@@ -310,8 +312,8 @@ def login_process(request):
     cursor.execute("select u.name, p.name from aep_user u, aep_profile p " +
                 "where u.id_profile = p.id and u.username = '{0}'".format(username))
     name, profile = cursor.fetchone()
-    print crypt_utils.decrypt(encrypted_password)
-    print password
+    #print crypt_utils.decrypt(encrypted_password)
+    #print password
     
     if name is None or crypt_utils.decrypt(encrypted_password) != password:
     	return render(request, 'login.html', {'error': 'username or password invalid'})
@@ -319,6 +321,6 @@ def login_process(request):
     if profile == 'Admin':
         response = render(request, 'admin.html')
     else:
-        response = render(request, 'index.html')
+        response = render(request, 'team.html')
 
     return session_manager.create_session(response, conn, cursor, username)
