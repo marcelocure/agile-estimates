@@ -1,0 +1,7 @@
+<textarea rows="10" id="log" name="log" cols="100">{% for l in log %}{{ l }}
+{% endfor %}
+{% for c in cards %}
+{{ c.name }}
+{{ c.url }}
+{% endfor %}
+</textarea>

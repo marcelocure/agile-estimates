@@ -3,6 +3,7 @@ import psycopg2
 import session_manager
 import crypt_utils
 from django.db import connection as conn
+from trello_scanner import scan as scan_trello
 
 def connect():
     return conn, conn.cursor()
@@ -84,6 +85,15 @@ def save_project(request):
     conn, cursor = connect()
     cursor.execute("insert into aep_project (name, id_customer, trello_board) "+
                    "values('{0}',{1}, '{2}')".format(name, customer, trello_board))
+    conn.commit()
+
+    cursor.execute("select max(id) from aep_project")
+    project_id = cursor.fetchone()[0]
+    users = parse_post(request.POST)
+    for u in users:
+        cursor.execute("insert into aep_user_project (id_user, id_project) "+
+                   "values({0},{1})".format(u, project_id))
+
     conn.commit()
 
     return project(request)
@@ -202,6 +212,18 @@ def scan(request):
     if session_manager.is_there_a_valid_session(request, 'Team'):
         return render_to_response('scan.html', get_project_list(), context_instance=RequestContext(request))
     return render(request, 'login.html')
+
+def get_trello_id(project_id):
+    conn, cursor = connect()
+    cursor.execute("select trello_board from aep_project where id = {0}".format(project_id))
+    return cursor.fetchone()[0]
+
+def scan_process(request):
+    id_project = request.GET['project_id']
+    trello_id = get_trello_id(id_project)
+    cards, log = scan_trello(trello_id)
+    print 'acabou o scan'
+    return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
     conn, cursor = connect()

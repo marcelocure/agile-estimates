@@ -94,3 +94,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+trello_api_key = '500883312ee38a44d357b1ac15a17524'
+trello_auth_token = '56935aa42f5ddd66ea8b1a31f62f9e918ddfd3ae52e11e4a69bbaab94e7cd2f0'

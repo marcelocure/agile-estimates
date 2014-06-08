@@ -37,6 +37,8 @@ urlpatterns = patterns('',
     url(r'^aep/projects', views.project, name="aep/projects"),
     url(r'^aep/sprints', views.sprint, name="aep/sprints"),
     url(r'^aep/scan_project', views.scan, name="aep/scan"),
+    url(r'^aep/scan_process', views.scan_process, name="aep/scan"),
+    
     url(r'^login/$', views.login, name="aep/login"),
     url(r'^admin/', include(admin.site.urls)),
 )
