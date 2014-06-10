@@ -10,11 +10,6 @@
 <li><a href="/aep/charts/">Charts</a></li>
 <li><a href="/aep/logout/">Logout</a></li>
 {% endblock %}
-<script>
-  $(function() {
-    $( "#start_date" ).datepicker();
-  });
-  </script>
 {% block mainContainer %}
 <div class="container">
 	<div class="row">
@@ -42,10 +37,10 @@
 					<td>Description: </td><td><input type="text" name="description" id="description" size="30"></td>
 				</tr>
 				<tr>
-					<td>Start Date: </td><td><input type="text" name="start_date" id="start_date" size="10"></td>
+					<td>Start Date: </td><td><input type="text" name="start_date" id="start_date" size="10"> <img id="sd" src="{% static 'admin/img/date.png' %}" width="20" height="20"></td>
 				</tr>
 				<tr>
-					<td>End Date: </td><td><input type="text" name="end_date" id="end_date" size="10"> <img src="{% static 'admin/img/date.png' %}"></td>
+					<td>End Date: </td><td><input type="text" name="end_date" id="end_date" size="10"> <img id="ed" src="{% static 'admin/img/date.png' %}" width="20" height="20"></td>
 				</tr>
 				<tr>
 					<td>Estimated Points: </td>
@@ -63,5 +58,14 @@
 		</div>
 	</div>
 </div>
+<script>
+	$(function() {
+		$( "#start_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+		$( "#end_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+	});
+</script>
+
+ 
+
 <br><br><br><br><br>
 {% endblock %}

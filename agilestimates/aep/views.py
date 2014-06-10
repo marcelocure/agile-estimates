@@ -181,12 +181,11 @@ def save_edit_user(request):
     id = request.POST['id']
     name = request.POST['name']
     username = request.POST['username']
-    password = request.POST['password']
     email = request.POST['email']
     profile = request.POST['profile']
     conn, cursor = connect()
-    cursor.execute("update aep_user set name = '{0}', username = '{1}', password = '{2}', email = '{3}', id_profile = {4} where id = {5}".
-                            format(name, username, password, email, profile, id))
+    cursor.execute("update aep_user set name = '{0}', username = '{1}',  email = '{2}', id_profile = {3} where id = {4}".
+                            format(name, username, email, profile, id))
     conn.commit()
 
     return user(request)
@@ -222,7 +221,6 @@ def scan_process(request):
     id_project = request.GET['project_id']
     trello_id = get_trello_id(id_project)
     cards, log = scan_trello(trello_id)
-    print 'acabou o scan'
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
