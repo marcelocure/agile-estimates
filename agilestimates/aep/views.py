@@ -1,100 +1,73 @@
-from django.shortcuts import render, render_to_response, RequestContext
-import psycopg2
+from django.shortcuts import render
 import session_manager
 import crypt_utils
 from django.db import connection as conn
 from trello_scanner import scan as scan_trello
-
-def connect():
-    return conn, conn.cursor()
- 
+from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
 
 def logout(request):
     response = render(request, 'logout.html')
     return session_manager.delete_session(request, response)
 
-
 def get_customer_list():
-    conn, cursor = connect()
-    cursor.execute("select id, name, country, operation_area from aep_customer order by id")
-    rows = cursor.fetchall()
-    return {'customers': rows}
-
+    return map(lambda c: (c.id, c.name, c.country, c.operation_area), Customer.objects.all())
 
 def get_user_list():
-    conn, cursor = connect()
-    cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile from aep_user u, aep_profile p where p.id = u.id_profile order by u.id")
-    rows = cursor.fetchall()
-    return {'users': rows, 'profiles': get_profile_list()['profiles']}
+    users = map(lambda u: (u.id, u.name, u.username, u.password, u.email, u.profile.name), User.objects.all())
+    return users
 
+def get_user_list_from_project(project_id):
+    users = Project.objects.get(id=project_id).users.all()
+    return map(lambda u: (u.id, u.name, u.username), users)
 
-def get_user_list_from_project(id_project):
-    conn, cursor = connect()
-    cursor.execute("select u.id, u.name, u.username from aep_user u, aep_user_project p where p.id_project = {0} and u.id = p.id_user order by u.id".format(id_project))
-    rows = cursor.fetchall()
-    return {'users_registered': rows}
-
-
-def get_user_list_not_in_project(id_project):
-    conn, cursor = connect()
-    cursor.execute("select u.id, u.name, u.username from aep_user u where u.id not in (select p.id_user from aep_user_project p where p.id_project = {0}) order by u.id".format(id_project))
-    rows = cursor.fetchall()
-    return {'users_not_registered': rows}
-
+def get_user_list_not_in_project(project_id):
+    users_not_in = User.objects.exclude(id__in=map(lambda a: a[0], get_user_list_from_project(project_id)))
+    return map(lambda u: (u.id, u.name, u.username, u.profile.name), users_not_in)
 
 def get_user(id):
-    conn, cursor = connect()
-    cursor.execute("select u.id, u.name, u.username, u.password, u.email, p.name as profile "+
-        "from aep_user u, aep_profile p where p.id = u.id_profile and u.id = {0}".format(id))
-    rows = cursor.fetchall()
-    return {'users': rows, 'profiles': get_profile_list()['profiles']}
-
+    return map(lambda u: (u.id, u.name, u.username, u.password, u.email, u.profile.name), [User.objects.get(id=id)])
 
 def get_project(id):
-    conn, cursor = connect()
-    cursor.execute("select p.id, p.name, c.name as customer "+
-        "from aep_project p, aep_customer c where c.id = p.id_customer and p.id = {0}".format(id))
-    rows = cursor.fetchall()
-    return {'projects': rows, 'customers': get_customer_list()['customers']}
-
+    return map(lambda p: (p.id, p.name, p.trello_board, p.customer.name), [Project.objects.get(id=id)])
 
 def get_project_list():
-    conn, cursor = connect()
-    cursor.execute("select p.id, p.name, c.name as customer from aep_project p, aep_customer c where c.id = p.id_customer order by p.id")
-    rows = cursor.fetchall()
-    return {'projects': rows, 'customers': get_customer_list()['customers'], 'users': get_user_list()['users']}
-
+    return map(lambda p: (p.id, p.name, p.customer.name), Project.objects.all())
 
 def user(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render_to_response('users.html', get_user_list(), context_instance=RequestContext(request))
+        return render(request, 'users.html', {'users': get_user_list(), 'profiles': get_profile_list()})
     return render(request, 'login.html')
-
 
 def project(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render_to_response('projects.html', get_project_list(), context_instance=RequestContext(request))
+        return render(request, 'projects.html', {'projects': get_project_list(), 'users': get_user_list(), 'customers': get_customer_list()})
     return render(request, 'login.html')
 
 
+def build_profile(profile_name):
+    profile = filter(lambda p: p[1] == profile_name, get_profile_list())[0]
+    return Profile(id=profile[0], name=profile[1])
+
+def build_user(user):
+    return User(id=user[0], name=user[1], username=user[2], password=user[3], email=user[4], profile=build_profile(user[5]))
+
+def build_customer(customer_id):
+    c = get_customer(customer_id)[0]
+    return Customer(id=c[0], name=c[1], country=c[2], operation_area=c[3])
+
+def save_project_users(proj, user_list):
+    for u in user_list:
+        project_user = ProjectUser(project=proj, user=build_user(get_user(u)[0]))
+        project_user.save()    
+
 def save_project(request):
     name = request.POST['name']
-    customer = request.POST['customer']
     trello_board = request.POST['trello_board']
-    
-    conn, cursor = connect()
-    cursor.execute("insert into aep_project (name, id_customer, trello_board) "+
-                   "values('{0}',{1}, '{2}')".format(name, customer, trello_board))
-    conn.commit()
+    customer_id = request.POST['customer']
 
-    cursor.execute("select max(id) from aep_project")
-    project_id = cursor.fetchone()[0]
-    users = parse_post(request.POST)
-    for u in users:
-        cursor.execute("insert into aep_user_project (id_user, id_project) "+
-                   "values({0},{1})".format(u, project_id))
-
-    conn.commit()
+    proj = Project(name=name, customer=build_customer(customer_id), trello_board=trello_board)
+    proj.save()
+    save_project_users(proj, parse_post(request.POST))
 
     return project(request)
 
@@ -105,29 +78,27 @@ def save_sprint(request):
     end_date = request.POST['end_date']
     estimated_points = request.POST['estimated_points']
     
-    conn, cursor = connect()
-    cursor.execute("insert into aep_sprint (id_project, description, start_date, end_date, points_estimated) "+
+    cursor = conn.cursor()
+    cursor.execute("insert into aep_sprint (project_id, description, start_date, end_date, points_estimated) "+
                    "values({0},'{1}','{2}','{3}',{4})".format(project, description, start_date, end_date, estimated_points))
     conn.commit()
-
     return sprint(request)
 
-
 def delete_project(request, id):
-    conn, cursor = connect()
+    cursor = conn.cursor()
+    cursor.execute("delete from aep_user_project where project_id = {0}".format(id))
     cursor.execute("delete from aep_project where id = {0}".format(id))
     conn.commit()
-
     return project(request)
 
-
 def edit_user(request, id):
-    return render_to_response('edit_user.html', get_user(id), context_instance=RequestContext(request))
-
+    return render(request, 'edit_user.html', {'user': get_user(id), 'profiles': get_profile_list()})
 
 def edit_project(request, id):
-    return render_to_response('edit_project.html',{'users_registered': get_user_list_from_project(id)['users_registered'], 'users_not_registered': get_user_list_not_in_project(id)['users_not_registered'], 'projects': get_project(id)['projects'], 'customers': get_project(id)['customers']}, context_instance=RequestContext(request))
-
+    return render(request, 'edit_project.html',{'users_registered': get_user_list_from_project(id),
+                                                'users_not_registered': get_user_list_not_in_project(id),
+                                                'project': get_project(id),
+                                                'customers': get_customer_list()})
 
 def parse_post(post_data):
     s = str(post_data)
@@ -139,27 +110,18 @@ def parse_post(post_data):
     s =  s.replace("u","").replace(" ","").replace("'","")
     return s.split(",")
 
-
 def save_edit_project(request):
     id = request.POST['id']
     name = request.POST['name']
     customer = request.POST['customer']
-    print request.POST
     users = parse_post(request.POST)
-    print users
-
-    conn, cursor = connect()
-    cursor.execute("update aep_project set name = '{0}', id_customer = {1}  where id = {2}".
-                            format(name, customer, id))
-    
-    cursor.execute("delete from aep_user_project where id_project = {0}".format(id))
+    cursor = conn.cursor()
+    cursor.execute("update aep_project set name = '{0}', customer_id = {1}  where id = {2}".format(name, customer, id))
+    cursor.execute("delete from aep_user_project where project_id = {0}".format(id))
     for user in users:
-        cursor.execute("insert into aep_user_project (id_user, id_project) values({0},{1})".format(user, id))
-
+        cursor.execute("insert into aep_user_project (user_id, project_id) values({0},{1})".format(user, id))
     conn.commit()
-
     return project(request)
-
 
 def save_user(request):
     name = request.POST['name']
@@ -168,14 +130,11 @@ def save_user(request):
     password = crypt_utils.encrypt(password)
     email = request.POST['email']
     profile = request.POST['profile']
-
-    conn, cursor = connect()
-    cursor.execute("insert into aep_user (name, username, password, email, id_profile) "+
+    cursor = conn.cursor()
+    cursor.execute("insert into aep_user (name, username, password, email, profile_id) "+
                    "values('{0}','{1}','{2}', '{3}', {4})".format(name, username, password, email, profile))
     conn.commit()
-
     return user(request)
-
 
 def save_edit_user(request):
     id = request.POST['id']
@@ -183,15 +142,14 @@ def save_edit_user(request):
     username = request.POST['username']
     email = request.POST['email']
     profile = request.POST['profile']
-    conn, cursor = connect()
-    cursor.execute("update aep_user set name = '{0}', username = '{1}',  email = '{2}', id_profile = {3} where id = {4}".
+    cursor = conn.cursor()
+    cursor.execute("update aep_user set name = '{0}', username = '{1}',  email = '{2}', profile_id = {3} where id = {4}".
                             format(name, username, email, profile, id))
     conn.commit()
-
     return user(request)
 
 def delete_user(request, id):
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("delete from aep_user where id = {0}".format(id))
     conn.commit()
 
@@ -199,124 +157,98 @@ def delete_user(request, id):
 
 def customer(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render_to_response('customers.html', get_customer_list(), context_instance=RequestContext(request))
+        return render(request, 'customers.html', {'customers': get_customer_list()})
     return render(request, 'login.html')
 
 def sprint(request):
     if session_manager.is_there_a_valid_session(request, 'Team'):
-        return render_to_response('sprints.html', get_project_list(), context_instance=RequestContext(request))
+        return render(request, 'sprints.html', {'projects': get_project_list()})
     return render(request, 'login.html')
 
 def scan(request):
     if session_manager.is_there_a_valid_session(request, 'Team'):
-        return render_to_response('scan.html', get_project_list(), context_instance=RequestContext(request))
+        return render(request, 'scan.html', {'projects': get_project_list()})
     return render(request, 'login.html')
 
 def get_trello_id(project_id):
-    conn, cursor = connect()
-    cursor.execute("select trello_board from aep_project where id = {0}".format(project_id))
-    return cursor.fetchone()[0]
+    return get_project(project_id)[0][2]
 
 def scan_process(request):
-    id_project = request.GET['project_id']
-    trello_id = get_trello_id(id_project)
+    project_id = request.GET['project_id']
+    trello_id = get_trello_id(project_id)
     print trello_id
     cards, log = scan_trello(trello_id)
     print (cards, log)
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
-    conn, cursor = connect()
-    cursor.execute("select id, name, country, operation_area from aep_customer where id = {0}".format(id))
-    rows = cursor.fetchall()
-    return {'customers': rows}
-
+    return map(lambda c: (c.id, c.name, c.country, c.operation_area), [Customer.objects.get(id=id)])
 
 def delete_customer(request, id):
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("delete from aep_customer where id = {0}".format(id))
     conn.commit()
-
     return customer(request)
 
-
 def edit_customer(request, id):
-    return render_to_response('edit_customer.html', get_customer(id), context_instance=RequestContext(request))
-
+    return render(request, 'edit_customer.html', {'customers': get_customer(id)})
 
 def save_edit_customer(request):
     id = request.POST['id']
     name = request.POST['name']
     country = request.POST['country']
     operation_area = request.POST['operation_area']
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("update aep_customer set name = '{0}', country = '{1}', operation_area = '{2}' where id = {3}".
                             format(name, country, operation_area, id))
     conn.commit()
-
     return customer(request)
 
-
 def get_profile_list():
-    conn, cursor = connect()
-    cursor.execute("select id, name from aep_profile order by id")
-    rows = cursor.fetchall()
-    return {'profiles': rows}
-
+    return map(lambda p: (p.id, p.name), Profile.objects.all())
 
 def get_profile(id):
-    conn, cursor = connect()
-    cursor.execute("select id, name from aep_profile where id = {0}".format(id))
-    rows = cursor.fetchall()
-    return {'profiles': rows}
+    profile = Profile.objects.get(id=id)
+    return [(profile.id, profile.name)]
 
 def profile(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        return render_to_response('profiles.html', get_profile_list(), context_instance=RequestContext(request))
+        return render(request, 'profiles.html', {'profiles': get_profile_list()})
     return render(request, 'login.html')
-
 
 def save_profile(request):
     name = request.POST['name']
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("insert into aep_profile (name) values('{0}')".format(name))
     conn.commit()
-
     return profile(request)
 
-
 def delete_profile(request, id):
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("delete from aep_profile where id = {0}".format(id))
     conn.commit()
-
     return profile(request)
 
 
 def save_edit_profile(request):
     id = request.POST['id']
     name = request.POST['name']
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("update aep_profile set name = '{0}' where id = {1}".format(name, id))
     conn.commit()
-
     return profile(request)
 
-
 def edit_profile(request, id):
-    return render_to_response('edit_profile.html', get_profile(id), context_instance=RequestContext(request))
-
+    return render(request, 'edit_profile.html', {'profiles': get_profile(id)})
 
 def save_customer(request):
     name = request.POST['name']
     country = request.POST['country']
     operation_area = request.POST['operation_area']
-
-    conn, cursor = connect()
+    cursor = conn.cursor()
     cursor.execute("insert into aep_customer (name, country, operation_area) "+
                    "values('{0}','{1}','{2}')".format(name, country, operation_area))
     conn.commit()
-
     return customer(request)
 
 def team(request):
@@ -328,38 +260,28 @@ def admin(request):
     return render(request, 'login.html')
 
 def login(request):
+    username = session_manager.get_session_username(request)
+
     if session_manager.is_there_a_valid_session(request, 'Admin'):
-        username = session_manager.get_session_username(request)
         return render(request, 'admin.html', {'username': username})
     if session_manager.is_there_a_valid_session(request, 'Team'):
-        username = session_manager.get_session_username(request)
         return render(request, 'team.html', {'username': username})
+
     return render(request, 'login.html')
 
-def get_encrypted_password(username):
-    conn, cursor = connect()
-    cursor.execute("select password from aep_user where username = '{0}'".format(username))
-    return cursor.fetchone()[0]
-
+def get_user_information(username):
+     return User.objects.filter(username=username)[0]
 
 def login_process(request):
     username = request.POST['username']
     password = request.POST['password']
-    conn, cursor = connect()
-    encrypted_password = get_encrypted_password(username)
+    user_info = get_user_information(username)
     
-    cursor.execute("select u.name, p.name from aep_user u, aep_profile p " +
-                "where u.id_profile = p.id and u.username = '{0}'".format(username))
-    name, profile = cursor.fetchone()
-    #print crypt_utils.decrypt(encrypted_password)
-    #print password
-    
-    if name is None or crypt_utils.decrypt(encrypted_password) != password:
+    if user_info.name is None or crypt_utils.decrypt(user_info.password) != password:
     	return render(request, 'login.html', {'error': 'username or password invalid'})
     
-    if profile == 'Admin':
+    if user_info.profile.name == 'Admin':
         response = render(request, 'admin.html', {'username': username})
     else:
         response = render(request, 'team.html', {'username': username})
-
-    return session_manager.create_session(response, conn, cursor, username)
+    return session_manager.create_session(response, username)

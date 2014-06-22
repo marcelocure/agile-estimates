@@ -28,7 +28,7 @@
 			<form method="post" action="/aep/save_edit_project"> 
 			{% csrf_token %}
 			<table>
-				{% for id, name, customer in projects %}
+				{% for id, name, customer in project %}
 				<input type="hidden" name="id" value={{ id }}>
 				<tr>
 					<td>Id: </td><td>{{ id }}</td><td>&nbsp;</td>

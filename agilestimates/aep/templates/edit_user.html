@@ -28,7 +28,7 @@
 			<form method="post" action="/aep/save_edit_user"> 
 			{% csrf_token %}
 			<table>
-				{% for id, name, username, password, email, profile in users %}
+				{% for id, name, username, password, email, profile in user %}
 				<input type="hidden" name="id" value={{ id }}>
 				<tr>
 					<td>Id: </td><td>{{ id }}</td>

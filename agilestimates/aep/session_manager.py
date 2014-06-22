@@ -1,7 +1,9 @@
+from django.db import connection as conn
 from django.http import HttpResponse
 import views
 
-def create_session(response, conn, cursor, username):
+def create_session(response, username):
+	cursor = conn.cursor()
 	cursor.execute("insert into aep_session (username, login_date) values('{0}', now()) returning id".format(username))
 	session_id = cursor.fetchone()[0]
 	conn.commit()
@@ -35,8 +37,8 @@ def get_session_username(request):
 def is_there_a_valid_session(request, profile):
 	session_id = get_session_id(request)
 	session_username = get_session_username(request)
-	conn, cursor = views.connect()
-	cursor.execute("select count(1) from aep_session s, aep_user u, aep_profile p where s.username = u.username and u.id_profile = p.id"+
+	cursor = conn.cursor()
+	cursor.execute("select count(1) from aep_session s, aep_user u, aep_profile p where s.username = u.username and u.profile_id = p.id"+
 		" and s.username = '{0}' and s.id = {1} and p.name = '{2}'".format(session_username, session_id, profile))
 	session_count = cursor.fetchone()[0]
 	if session_count > 0:
@@ -45,7 +47,7 @@ def is_there_a_valid_session(request, profile):
 
 
 def delete_session(request, response):
-	conn, cursor = views.connect()
+	cursor = conn.cursor()
 
 	session_id = get_session_id(request)
 

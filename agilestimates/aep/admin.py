@@ -1,17 +1,17 @@
 from django import forms
 from django.contrib import admin
-from aep.models import customer, user, profile
+from aep.models import Customer, User, Profile
 
 
 class customerInline(admin.StackedInline):
-    model = customer
+    model = Customer
 
 class userInline(admin.StackedInline):
-    model = user
+    model = User
 
 class profileInline(admin.StackedInline):
-    model = profile
+    model = Profile
 
-admin.site.register(customer)
-admin.site.register(user)
-admin.site.register(profile)
+admin.site.register(Customer)
+admin.site.register(User)
+admin.site.register(Profile)
