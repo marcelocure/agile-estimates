@@ -23,4 +23,4 @@ def update_profile(id, name):
 
 def create_profile(name):
 	prof = Profile(name=name)
-    prof.save()
+	prof.save()
