@@ -4,10 +4,10 @@ import crypt_utils
 from django.db import connection as conn
 from trello_scanner import scan as scan_trello
 from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
+from utils.profile import build_profile, get_profile_list, get_profile, remove_profile, update_profile, create_profile
 
 def logout(request):
-    response = render(request, 'logout.html')
-    return session_manager.delete_session(request, response)
+    return session_manager.delete_session(request, render(request, 'logout.html'))
 
 def get_customer_list():
     return map(lambda c: (c.id, c.name, c.country, c.operation_area), Customer.objects.all())
@@ -17,8 +17,7 @@ def get_user_list():
     return users
 
 def get_user_list_from_project(project_id):
-    users = Project.objects.get(id=project_id).users.all()
-    return map(lambda u: (u.id, u.name, u.username), users)
+    return map(lambda u: (u.id, u.name, u.username), Project.objects.get(id=project_id).users.all())
 
 def get_user_list_not_in_project(project_id):
     users_not_in = User.objects.exclude(id__in=map(lambda a: a[0], get_user_list_from_project(project_id)))
@@ -43,11 +42,6 @@ def project(request):
         return render(request, 'projects.html', {'projects': get_project_list(), 'users': get_user_list(), 'customers': get_customer_list()})
     return render(request, 'login.html')
 
-
-def build_profile(profile_name):
-    profile = filter(lambda p: p[1] == profile_name, get_profile_list())[0]
-    return Profile(id=profile[0], name=profile[1])
-
 def build_user(user):
     return User(id=user[0], name=user[1], username=user[2], password=user[3], email=user[4], profile=build_profile(user[5]))
 
@@ -67,7 +61,7 @@ def save_project(request):
 
     proj = Project(name=name, customer=build_customer(customer_id), trello_board=trello_board)
     proj.save()
-    save_project_users(proj, parse_post(request.POST))
+    save_project_users(proj, request.POST.getlist('users[]'))
 
     return project(request)
 
@@ -85,10 +79,8 @@ def save_sprint(request):
     return sprint(request)
 
 def delete_project(request, id):
-    cursor = conn.cursor()
-    cursor.execute("delete from aep_user_project where project_id = {0}".format(id))
-    cursor.execute("delete from aep_project where id = {0}".format(id))
-    conn.commit()
+    ProjectUser.objects.filter(project__id=id).delete()
+    Project.objects.filter(id=id).delete()
     return project(request)
 
 def edit_user(request, id):
@@ -100,25 +92,14 @@ def edit_project(request, id):
                                                 'project': get_project(id),
                                                 'customers': get_customer_list()})
 
-def parse_post(post_data):
-    s = str(post_data)
-    if s.find("u'users[]':") == -1:
-        return []
-    pos = s.find("u'users[]':") + 13
-    s = s[pos:]
-    s = s[:s.find("]")]
-    s =  s.replace("u","").replace(" ","").replace("'","")
-    return s.split(",")
-
 def save_edit_project(request):
     id = request.POST['id']
     name = request.POST['name']
     customer = request.POST['customer']
-    users = parse_post(request.POST)
     cursor = conn.cursor()
     cursor.execute("update aep_project set name = '{0}', customer_id = {1}  where id = {2}".format(name, customer, id))
-    cursor.execute("delete from aep_user_project where project_id = {0}".format(id))
-    for user in users:
+    ProjectUser.objects.filter(project__id=id).delete()
+    for user in request.POST.getlist('users[]'):
         cursor.execute("insert into aep_user_project (user_id, project_id) values({0},{1})".format(user, id))
     conn.commit()
     return project(request)
@@ -149,10 +130,7 @@ def save_edit_user(request):
     return user(request)
 
 def delete_user(request, id):
-    cursor = conn.cursor()
-    cursor.execute("delete from aep_user where id = {0}".format(id))
-    conn.commit()
-
+    User.objects.filter(id=id).delete()
     return user(request)
 
 def customer(request):
@@ -175,10 +153,7 @@ def get_trello_id(project_id):
 
 def scan_process(request):
     project_id = request.GET['project_id']
-    trello_id = get_trello_id(project_id)
-    print trello_id
-    cards, log = scan_trello(trello_id)
-    print (cards, log)
+    cards, log = scan_trello(get_trello_id(project_id))
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
@@ -204,51 +179,29 @@ def save_edit_customer(request):
     conn.commit()
     return customer(request)
 
-def get_profile_list():
-    return map(lambda p: (p.id, p.name), Profile.objects.all())
-
-def get_profile(id):
-    profile = Profile.objects.get(id=id)
-    return [(profile.id, profile.name)]
-
 def profile(request):
     if session_manager.is_there_a_valid_session(request, 'Admin'):
         return render(request, 'profiles.html', {'profiles': get_profile_list()})
     return render(request, 'login.html')
 
 def save_profile(request):
-    name = request.POST['name']
-    cursor = conn.cursor()
-    cursor.execute("insert into aep_profile (name) values('{0}')".format(name))
-    conn.commit()
+    create_profile(request.POST['name'])
     return profile(request)
 
 def delete_profile(request, id):
-    cursor = conn.cursor()
-    cursor.execute("delete from aep_profile where id = {0}".format(id))
-    conn.commit()
+    remove_profile(id)
     return profile(request)
 
-
 def save_edit_profile(request):
-    id = request.POST['id']
-    name = request.POST['name']
-    cursor = conn.cursor()
-    cursor.execute("update aep_profile set name = '{0}' where id = {1}".format(name, id))
-    conn.commit()
+    update_profile(request.POST['id'], request.POST['name'])
     return profile(request)
 
 def edit_profile(request, id):
     return render(request, 'edit_profile.html', {'profiles': get_profile(id)})
 
 def save_customer(request):
-    name = request.POST['name']
-    country = request.POST['country']
-    operation_area = request.POST['operation_area']
-    cursor = conn.cursor()
-    cursor.execute("insert into aep_customer (name, country, operation_area) "+
-                   "values('{0}','{1}','{2}')".format(name, country, operation_area))
-    conn.commit()
+    cust = Customer(name=request.POST['name'], country=request.POST['country'], operation_area=request.POST['operation_area'])
+    cust.save()
     return customer(request)
 
 def team(request):
