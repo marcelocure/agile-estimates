@@ -220,7 +220,9 @@ def get_trello_id(project_id):
 def scan_process(request):
     id_project = request.GET['project_id']
     trello_id = get_trello_id(id_project)
+    print trello_id
     cards, log = scan_trello(trello_id)
+    print (cards, log)
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
