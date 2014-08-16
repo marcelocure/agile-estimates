@@ -12,6 +12,6 @@ def scan(trello_board_id):
 		t_list = get_list(board, 'Done')
 		cards = get_list_cards(t_list)
 		log.append('Cards collected: ')
-	except:
-		log.append('Error connecting to trello')
+	except Exception as e:
+		log.append('Error connecting to trello {0}'.format(e))
 	return (cards, log)

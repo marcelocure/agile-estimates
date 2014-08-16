@@ -32,12 +32,12 @@ TEMPLATE_LOADERS = (
 
 ALLOWED_HOSTS = ['*']
 
-STATIC_ROOT = 'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/aep/all_static/'
+STATIC_ROOT = 'C:/Users/Marcelo Cure/Documents/github/agile-estimates/agilestimates/aep/all_static/'
 
 TEMPLATE_DIRS = (
 
-    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/aep/templates',
-    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/agilestimates/template',
+    'C:/Users/Marcelo Cure/Documents/github/agile-estimates/agilestimates/aep/templates',
+    'C:/Users/Marcelo Cure/Documents/github/agile-estimates/agilestimates/agilestimates/template',
 )
 
 STATIC_URL = '/static/'
@@ -46,7 +46,7 @@ SECRET_KEY = '80-yvv(ybl%*a87dt2u&1wd03lq61tm_1wfn(k5_dechsjzk+d'
 
 STATICFILES_DIRS = (
 
-    'C:/Users/marcelo/Documents/github/agile-estimates/agilestimates/all_static',
+    'C:/Users/Marcelo Cure/Documents/github/agile-estimates/agilestimates/all_static',
 
 )
 
@@ -96,4 +96,4 @@ USE_L10N = True
 USE_TZ = True
 
 trello_api_key = '500883312ee38a44d357b1ac15a17524'
-trello_auth_token = '56935aa42f5ddd66ea8b1a31f62f9e918ddfd3ae52e11e4a69bbaab94e7cd2f0'
+trello_auth_token = 'c990df3e2650de5af1c077beb8fffe2365df3ab3cdce8ed898eebe96c6cac20b'

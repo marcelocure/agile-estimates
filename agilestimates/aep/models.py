@@ -13,7 +13,7 @@ class Profile(models.Model):
 class User(models.Model):
     name = models.CharField(max_length=30)
     username = models.CharField(max_length=30)
-    password = models.CharField(max_length=30)
+    password = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
     profile = models.ForeignKey(Profile, verbose_name="profile")
 
@@ -46,9 +46,8 @@ class Sprint(models.Model):
     project = models.ForeignKey(Project, verbose_name="project")
     start_date = models.DateField()
     end_date = models.DateField()
-    points_estimated = models.IntegerField()
-    points_delivered = models.IntegerField()
-    number_of_tests = models.IntegerField()
-    date_scanned = models.DateField()
-    user = models.ForeignKey(User, verbose_name="user")
-    
+    points_estimated = models.IntegerField(null=True)
+    points_delivered = models.IntegerField(null=True)
+    number_of_tests = models.IntegerField(null=True)
+    date_scanned = models.DateField(null=True)
+

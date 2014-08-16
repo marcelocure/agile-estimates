@@ -1,7 +1,7 @@
-#https://trello.com/docs/api/index.html def  
+#https://trello.com/docs/api/index.html
 from agilestimates.settings import trello_api_key, trello_auth_token
 from trollop import TrelloConnection
-import utils
+from encoding_utils import normalize_value
 
 
 def get_connection():
@@ -15,7 +15,7 @@ def get_list(board, list_name):
 	return result[0]
 
 def get_list_cards(t_list):
-	return map(lambda card: {'name': utils.normalize_value(card.name), 'description': utils.normalize_value(card.desc), 'url': card.url}, t_list.cards)
+	return map(lambda card: {'name': normalize_value(card.name), 'description': normalize_value(card.desc), 'url': card.url}, t_list.cards)
 
 def get_board_members(board):
 	return map(lambda m: m.username, b.members)
