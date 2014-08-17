@@ -1,12 +1,9 @@
 from trello_api import get_connection, get_board, get_list, get_list_cards
 
 def scan(trello_board_id):
-    log = []
-    cards = []
-    total_unit_tests = 0
-    total_points_delivered = 0
-    log.append('Connecting to trello')
     try:
+        log = []
+        log.append('Connecting to trello')
         conn = get_connection()
         log.append('Getting board')
         board = get_board(conn, trello_board_id)
@@ -18,16 +15,13 @@ def scan(trello_board_id):
         log.append('Calculating metrics')
         total_unit_tests, total_points_delivered = summarize_metrics(cards_dict)
         log.append('Cards collected: ')
+        return (cards, log, total_unit_tests, total_points_delivered)
     except Exception as e:
         log.append('Error connecting to trello {0}'.format(e))
-    return (cards, log, total_unit_tests, total_points_delivered)
 
 def summarize_metrics(cards_dict):
-    print cards_dict
     total_unit_tests = count_unit_tests(cards_dict)
-    print total_unit_tests
     total_points_delivered = count_points_delivered(cards_dict)
-    print total_points_delivered
     return (total_unit_tests, total_points_delivered)
 
 def count_unit_tests(cards_dict):
@@ -38,11 +32,8 @@ def count_unit_tests(cards_dict):
 
 def count_points_delivered(cards_dict):
     total_points_delivered = 0
-    try:
-        for card_dict in cards_dict:
-            total_points_delivered = total_points_delivered + int(card_dict['points'])
-    except Exception as e:
-        print 'exception bitch {0}'.format(e)
+    for card_dict in cards_dict:
+        total_points_delivered = total_points_delivered + int(card_dict['points'])
     return total_points_delivered
 
 def parse_cards(cards):
