@@ -153,7 +153,12 @@ def get_trello_id(project_id):
 
 def scan_process(request):
     project_id = request.GET['project_id']
-    cards, log = scan_trello(get_trello_id(project_id))
+    cards, log, total_unit_tests, total_points_delivered = scan_trello(get_trello_id(project_id))
+    #sprint = Sprint.objects.get(project__id=project_id, points_delivered=None)
+    #sprint.points_delivered=total_points_delivered
+    #sprint.number_of_tests=total_unit_tests
+    #sprint.date_scanned=now()
+    #sprint.save()
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):

@@ -5,7 +5,10 @@ from encoding_utils import normalize_value
 
 
 def get_connection():
-	return TrelloConnection(trello_api_key, trello_auth_token)
+    try:
+	    return TrelloConnection(trello_api_key, trello_auth_token)
+    except Exception as e:
+        print e
 
 def get_board(conn, board_id): 
 	return conn.get_board(board_id)
