@@ -16,6 +16,3 @@ def get_list(board, list_name):
 
 def get_list_cards(t_list):
 	return map(lambda card: {'name': normalize_value(card.name), 'description': normalize_value(card.desc), 'url': card.url}, t_list.cards)
-
-def get_board_members(board):
-	return map(lambda m: m.username, b.members)
