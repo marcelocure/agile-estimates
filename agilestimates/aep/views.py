@@ -153,18 +153,23 @@ def scan(request):
 def get_trello_id(project_id):
     return get_project(project_id)[0][2]
 
+def update_sprint(project_id, total_points_delivered, total_unit_tests):
+    sprint = Sprint.objects.filter(project__id=project_id, points_delivered=None)
+    if len(sprint) == 0:
+        return 'Sprint does not exist or already scanned'
+    current_sprint = sprint[0]
+    current_sprint.points_delivered=total_points_delivered
+    current_sprint.number_of_tests=total_unit_tests
+    current_sprint.date_scanned=date.today()
+    current_sprint.save()
+    return 'Success'
+
 def scan_process(request):
     project_id = request.GET['project_id']
     cards, log, total_unit_tests, total_points_delivered = scan_trello(get_trello_id(project_id))
-    sprint = Sprint.objects.get(project__id=project_id, points_delivered=None)
-    sprint.points_delivered=total_points_delivered
-    sprint.number_of_tests=total_unit_tests
-    sprint.date_scanned=date.today()
-    try:
-        sprint.save()
-    except Exception as e:
-        print e
-    return render(request, 'log.html', {'cards': cards, 'log': log})
+    message = update_sprint(project_id, total_points_delivered, total_unit_tests)
+
+    return render(request, 'log.html', {'cards': cards, 'log': log, 'message': message})
 
 def get_customer(id):
     return map(lambda c: (c.id, c.name, c.country, c.operation_area), [Customer.objects.get(id=id)])

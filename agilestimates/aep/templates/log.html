@@ -1,7 +1,13 @@
-<textarea rows="10" id="log" name="log" cols="100">{% for l in log %}{{ l }}
-{% endfor %}
-{% for c in cards %}
-{{ c.name }}
-{{ c.url }}
-{% endfor %}
+<textarea rows="10" id="log" name="log" cols="100">
+{% if message == 'Success' %}
+    {% for l in log %}{{ l }}
+    {% endfor %}
+    {% for c in cards %}
+    {{ c.name }}
+    {{ c.url }}
+    {% endfor %}
+{% else %}
+    {{ message }}
+{% endif %}
+
 </textarea>

@@ -64,6 +64,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'aep',
+    'django_coverage'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -96,4 +97,12 @@ USE_L10N = True
 USE_TZ = True
 
 trello_api_key = '500883312ee38a44d357b1ac15a17524'
-trello_auth_token = 'aaf10a306dee7800a2fb6d7447726872148ccf545ea28b882bb80b33c07f58b0'
+trello_auth_token = '20ecf1635559dd597203470cd44b28d356a517a7d707422d83f2d4acb0940dcc'
+
+import sys
+
+if 'test' in sys.argv:
+    try:
+        from test import *
+    except ImportError:
+        pass

@@ -13,17 +13,21 @@ def scan(trello_board_id):
         log.append('Getting Cards on list Done')
         t_list = get_list(board, 'Done')
         cards = get_list_cards(t_list)
+        log.append('Parsing cards')
         cards_dict = parse_cards(cards)
+        log.append('Calculating metrics')
         total_unit_tests, total_points_delivered = summarize_metrics(cards_dict)
-        print (total_unit_tests, total_points_delivered)
         log.append('Cards collected: ')
     except Exception as e:
         log.append('Error connecting to trello {0}'.format(e))
     return (cards, log, total_unit_tests, total_points_delivered)
 
 def summarize_metrics(cards_dict):
+    print cards_dict
     total_unit_tests = count_unit_tests(cards_dict)
-    total_points_delivered = count_unit_tests(cards_dict)
+    print total_unit_tests
+    total_points_delivered = count_points_delivered(cards_dict)
+    print total_points_delivered
     return (total_unit_tests, total_points_delivered)
 
 def count_unit_tests(cards_dict):
@@ -34,8 +38,11 @@ def count_unit_tests(cards_dict):
 
 def count_points_delivered(cards_dict):
     total_points_delivered = 0
-    for card_dict in cards_dict:
-        total_points_delivered = total_points_delivered + int(card_dict['unit_tests'])
+    try:
+        for card_dict in cards_dict:
+            total_points_delivered = total_points_delivered + int(card_dict['points'])
+    except Exception as e:
+        print 'exception bitch {0}'.format(e)
     return total_points_delivered
 
 def parse_cards(cards):
@@ -52,8 +59,12 @@ def build_output_dict(card):
 
 def get_field(splited_values, field):
     result = filter(lambda row: field in row, splited_values)
+    if len(result) == 0:
+        return None
     return remove_label(result[0])
 
 def remove_label(result):
-    position = result.find(':')+2
-    return result[position:]
+    position = result.find(':')
+    if position < 0:
+        return result
+    return result[position+2:]
