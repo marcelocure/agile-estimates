@@ -5,6 +5,8 @@ from django.db import connection as conn
 from trello_scanner import scan as scan_trello
 from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
 from utils.profile import build_profile, get_profile_list, get_profile, remove_profile, update_profile, create_profile
+from datetime import date
+
 
 def logout(request):
     return session_manager.delete_session(request, render(request, 'logout.html'))
@@ -154,11 +156,14 @@ def get_trello_id(project_id):
 def scan_process(request):
     project_id = request.GET['project_id']
     cards, log, total_unit_tests, total_points_delivered = scan_trello(get_trello_id(project_id))
-    #sprint = Sprint.objects.get(project__id=project_id, points_delivered=None)
-    #sprint.points_delivered=total_points_delivered
-    #sprint.number_of_tests=total_unit_tests
-    #sprint.date_scanned=now()
-    #sprint.save()
+    sprint = Sprint.objects.get(project__id=project_id, points_delivered=None)
+    sprint.points_delivered=total_points_delivered
+    sprint.number_of_tests=total_unit_tests
+    sprint.date_scanned=date.today()
+    try:
+        sprint.save()
+    except Exception as e:
+        print e
     return render(request, 'log.html', {'cards': cards, 'log': log})
 
 def get_customer(id):
