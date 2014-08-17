@@ -36,6 +36,7 @@ urlpatterns = patterns('',
     url(r'^aep/users', views.user, name="aep/users"),
     url(r'^aep/projects', views.project, name="aep/projects"),
     url(r'^aep/sprints', views.sprint, name="aep/sprints"),
+    url(r'^aep/acharts', views.admin_charts, name="aep/admin_charts"),
     url(r'^aep/scan_project', views.scan, name="aep/scan"),
     url(r'^aep/scan_process', views.scan_process, name="aep/scan"),
     

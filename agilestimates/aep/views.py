@@ -6,7 +6,11 @@ from trello_scanner import scan as scan_trello
 from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
 from utils.profile import build_profile, get_profile_list, get_profile, remove_profile, update_profile, create_profile
 from datetime import date
+import chart_generator
 
+def admin_charts(request):
+    #chart_generator.generate('points per sprint', 'points', (10, 20, 30, 40), ('s1', 's2', 's3', 's4'))
+    return render(request, 'admin_charts.html')
 
 def logout(request):
     return session_manager.delete_session(request, render(request, 'logout.html'))
