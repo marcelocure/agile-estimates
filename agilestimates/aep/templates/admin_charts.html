@@ -7,9 +7,9 @@
 {% block menuItems %}
 <li><a href="/aep/customers/">Customers</a></li>
 <li><a href="/aep/projects">Projects</a></li>
-<li class="active"><a href="/aep/profiles">Profiles</a></li>
+<li><a href="/aep/profiles">Profiles</a></li>
 <li><a href="/aep/users">Users</a></li>
-<li><a href="/aep/acharts">Charts</a></li>
+<li class="active"><a href="/aep/acharts">Charts</a></li>
 <li><a href="/aep/pending_scans">Pending Scans</a></li>
 <li><a href="/aep/logout/">Logout</a></li>
 {% endblock %}
@@ -27,16 +27,29 @@
 			<br>
 			<table>
 				<tr>
-					<td><a href="#">Points delivered per sprints</a></td>
+					<td>
+                    <a href="javascript:generate('Points delivered per sprints')">Points delivered per sprints</a>
+                    </td>
 				</tr>
 			</table>
 		</div>
 		<div class="col-md-6">
-			<h2>Charts</h2>
 			<br>
-			<div id="chart"></div>
+			<div id="chart"></div><canvas id="myChart" width="400" height="400"></canvas>
 		</div>
 	</div>
 </div>
+<script language="javascript">
+    function generate(chart) {
+    $(function() {
+            document.getElementById('chart').value = chart
+	      	var posting = $.get('/aep/generate_chart', { chart: chart } );
+	        posting.done(function(data) {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var barChart = new Chart(ctx).Line(JSON.parse(data));
+	        });
+	      });
+	}
+</script>
 <br><br><br><br><br>
 {% endblock %}

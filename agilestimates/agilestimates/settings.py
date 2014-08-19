@@ -2,7 +2,6 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 DEBUG = True
 TEMPLATE_DEBUG = True
 
@@ -95,6 +94,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
 
 trello_api_key = '500883312ee38a44d357b1ac15a17524'
 trello_auth_token = '20ecf1635559dd597203470cd44b28d356a517a7d707422d83f2d4acb0940dcc'

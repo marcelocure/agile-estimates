@@ -7,9 +7,17 @@ from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
 from utils.profile import build_profile, get_profile_list, get_profile, remove_profile, update_profile, create_profile
 from datetime import date
 import chart_generator
+import json
+
+def generate_chart(request):
+    sprints = Sprint.objects.filter(project__id=1)
+    labels = map(lambda sprint: str(sprint.description), sprints)
+    data = map(lambda sprint: sprint.points_delivered, sprints)
+    chart = chart_generator.generate(labels, data)
+    jsonString = json.dumps(chart, ensure_ascii=False)
+    return render(request, 'chart.html', {'chart': jsonString})
 
 def admin_charts(request):
-    #chart_generator.generate('points per sprint', 'points', (10, 20, 30, 40), ('s1', 's2', 's3', 's4'))
     return render(request, 'admin_charts.html')
 
 def logout(request):
