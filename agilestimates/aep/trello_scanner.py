@@ -18,6 +18,7 @@ def scan(trello_board_id):
         return (cards, log, total_unit_tests, total_points_delivered)
     except Exception as e:
         log.append('Error connecting to trello {0}'.format(e))
+        print e
 
 def summarize_metrics(cards_dict):
     total_unit_tests = count_unit_tests(cards_dict)
