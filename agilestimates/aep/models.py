@@ -51,3 +51,12 @@ class Sprint(models.Model):
     number_of_tests = models.IntegerField(null=True)
     date_scanned = models.DateField(null=True)
 
+class Card(models.Model):
+    sprint = models.ForeignKey(Sprint, verbose_name='sprint')
+    name = models.CharField(max_length=100)
+    url = models.CharField(max_length=200)
+    description = models.CharField(max_length=1000)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    points_created = models.IntegerField(null=True)
+    tests_created = models.IntegerField(null=True)

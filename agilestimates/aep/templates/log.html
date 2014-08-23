@@ -2,10 +2,13 @@
 {% if message == 'Success' %}
     {% for l in log %}{{ l }}
     {% endfor %}
-    {% for c in cards %}
-    {{ c.name }}
-    {{ c.url }}
+    {% for c in cards %}    {{ c.url }}
     {% endfor %}
+    Metrics Collected:
+
+        Total Points Delivered: {{ total_points_delivered }}
+        Total Unit Tests created {{ total_unit_tests }}
+
 {% else %}
     {{ message }}
 {% endif %}

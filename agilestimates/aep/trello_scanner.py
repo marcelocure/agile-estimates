@@ -1,21 +1,19 @@
 from trello_api import get_connection, get_board, get_list, get_list_cards
+from models import Card, Sprint
 
 def scan(trello_board_id):
     try:
         log = []
-        log.append('Connecting to trello')
         conn = get_connection()
-        log.append('Getting board')
+        log.append('Reading board')
         board = get_board(conn, trello_board_id)
-        log.append('Getting Cards on list Done')
         t_list = get_list(board, 'Done')
         cards = get_list_cards(t_list)
-        log.append('Parsing cards')
         cards_dict = parse_cards(cards)
-        log.append('Calculating metrics')
+        card_list = create_card_list(cards_dict)
         total_unit_tests, total_points_delivered = summarize_metrics(cards_dict)
         log.append('Cards collected: ')
-        return (cards, log, total_unit_tests, total_points_delivered)
+        return (cards, log, total_unit_tests, total_points_delivered, card_list)
     except Exception as e:
         log.append('Error connecting to trello {0}'.format(e))
         print e
@@ -40,14 +38,34 @@ def count_points_delivered(cards_dict):
 def parse_cards(cards):
     return map(build_output_dict, cards)
 
+def create_card_list(cards_dict):
+    return map(bind_card, cards_dict)
+
+def bind_card(card_dict):
+    card = None
+    try:
+        card = Card(sprint=Sprint(),
+                    name=card_dict['name'],
+                    url=card_dict['url'],
+                    description=card_dict['description'],
+                    start_date=card_dict['start_date'],
+                    end_date=card_dict['end_date'],
+                    points_created=card_dict['points'],
+                    tests_created=card_dict['unit_tests'])
+    except Exception as e:
+        print e
+    return card
+
 def build_output_dict(card):
+    name = card['name']
     description = card['description']
+    url = card['url']
     splited_values = description.split('\n')
     start_date = get_field(splited_values, 'Start Date:')
     end_date = get_field(splited_values, 'End Date:')
     points = get_field(splited_values, 'Points:')
     unit_tests = get_field(splited_values, 'Unit Tests:')
-    return {'start_date':start_date, 'end_date':end_date, 'points':points, 'unit_tests':unit_tests}
+    return {'url': url, 'name':name, 'description':description, 'start_date':start_date, 'end_date':end_date, 'points':points, 'unit_tests':unit_tests}
 
 def get_field(splited_values, field):
     result = filter(lambda row: field in row, splited_values)

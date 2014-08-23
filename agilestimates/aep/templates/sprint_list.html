@@ -1,0 +1,44 @@
+<h2 style="margin-top:0px;">Sprints</h2>
+<table class="table table-hover table-condensed">
+<tbody>
+<tr>
+    <th>Description</th>
+    <th>Start Date</th>
+    <th>End Date</th>
+    <th>Points Estimated</th>
+    <th>Points Delivered</th>
+    <th>Number of Tests</th>
+    <th>Cards</th>
+</tr>
+{% for sprint in sprints %}
+    <tr>
+        <td>{{ sprint.description }}</td>
+        <td>{{ sprint.start_date }}</td>
+        <td>{{ sprint.end_date }}</td>
+        <td>{{ sprint.points_estimated }}</td>
+        <td>{{ sprint.points_delivered }}</td>
+        <td>{{ sprint.number_of_tests }}</td>
+        <td><a href="#" onClick="open_card({{sprint.id}});" data-toggle="modal" style="color: #3c9dea;">Open</a></td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+<div class="modal fade" id="cards" style="background-color: #FFFFFF; width: 80%; height: 90%; margin-left: auto; margin-right: auto; margin-top: 60px;">
+	<div class="modal-header">
+		<button data-dismiss="modal" class="btn btn-success" style="float:right;">Close</button>
+		<h2 style="margin-top:0px;">Cards</h2>
+	</div>
+	<div class="modal-body">
+		<div id="cards-div"></div>
+  	</div>
+</div>
+
+<script language="javascript">
+    function open_card(sprint_id) {
+        $('#cards').modal();
+        var posting = $.get('/aep/get_cards/', {'sprint_id': sprint_id});
+        posting.done(function(data) {
+                      $('#cards-div').html(data);
+                    });
+    }
+</script>

@@ -97,7 +97,7 @@ USE_TZ = True
 
 
 trello_api_key = '500883312ee38a44d357b1ac15a17524'
-trello_auth_token = '05d751482f2135833818b475792e852235d4cbdb836ecbd67883d397d20cdcb4'
+trello_auth_token = '7b60eb7fd3dec7d20aeb06ca08f9301b8d004799a282499b27939028aafc306a'
 
 import sys
 

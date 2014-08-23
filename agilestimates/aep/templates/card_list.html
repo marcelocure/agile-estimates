@@ -1,0 +1,23 @@
+<table class="table table-hover table-condensed">
+<tbody>
+<tr>
+    <th>Name</th>
+    <th>Start Date</th>
+    <th>End Date</th>
+    <th>URL</th>
+    <th>Points</th>
+    <th>Number of Tests created</th>
+
+</tr>
+{% for card in cards %}
+    <tr>
+        <td>{{ card.name }}</td>
+        <td>{{ card.start_date }}</td>
+        <td>{{ card.end_date }}</td>
+        <td><a href="{{ card.url }}" target="_blank">Open on Trello</a></td>
+        <td>{{ card.points_created }}</td>
+        <td>{{ card.tests_created }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>

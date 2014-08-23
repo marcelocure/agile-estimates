@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}Agile Estimates Support - Home{% endblock %}
+
+{% block menuItems %}
+<li><a href="/aep/sprints/">Sprint Registration</a></li>
+<li><a href="/aep/scan_project/">Scan Project</a></li>
+<li class="active"><a href="/aep/my_projects/">My projects</a></li>
+<li><a href="/aep/charts/">Charts</a></li>
+<li><a href="/aep/logout/">Logout</a></li>
+{% endblock %}
+
+{% block mainContainer %}
+<div class="container">
+	<div class="row">
+		<ol class="breadcrumb">
+			<li class="active">Home > My Projects</li>
+		</ol>
+	</div>
+	<div class="row">
+		<div class="col-md-4">
+			<table cellspacing="3" cellpadding="3">
+                <tr>
+                    <td>Project:</td>
+                </tr>
+                {% for project in projects %}
+                    <tr>
+                        <td>
+                            <a href="javascript:show_sprints('{{ project.name }}')">{{ project.name }} ({{ project.customer.name }})</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tr>
+			</table>
+		</div>
+		<div class="col-md-8">
+			<br>
+			<div id="sprints"></div>
+		</div>
+	</div>
+</div>
+<br><br><br><br><br>
+<script language="javascript">
+    function show_sprints(project_name) {
+    $(function() {
+	      	var posting = $.get('/aep/get_project_sprints', { project_name: project_name } );
+	        posting.done(function(data) {
+	            $('#sprints').html(data);
+	        });
+	      });
+	}
+</script>
+{% endblock %}

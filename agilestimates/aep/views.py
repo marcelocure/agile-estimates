@@ -3,22 +3,54 @@ import session_manager
 import crypt_utils
 from django.db import connection as conn
 from trello_scanner import scan as scan_trello
-from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser
+from aep.models import User, Profile, Customer, Project, Sprint, ProjectUser, Card
 from utils.profile import build_profile, get_profile_list, get_profile, remove_profile, update_profile, create_profile
 from datetime import date
 import chart_generator
 import json
 
+def get_cards(request):
+    sprint_id = request.GET['sprint_id']
+    cards = Card.objects.filter(sprint__id=sprint_id)
+    return render(request, 'card_list.html', {'cards': cards})
+
+def get_project_sprints(request):
+    project_name = request.GET['project_name']
+    sprints = Sprint.objects.filter(project__name=project_name)
+    return render(request, 'sprint_list.html', {'sprints': sprints})
+
+def my_projects(request):
+    user_name = session_manager.get_session_username(request)
+    user_projects = ProjectUser.objects.filter(user__username=user_name)
+    projects = map(lambda user_project: Project.objects.get(id=user_project.project_id), user_projects)
+    return render(request, 'my_projects.html', {'projects': projects})
+
 def generate_chart(request):
-    sprints = Sprint.objects.filter(project__id=1)
-    labels = map(lambda sprint: str(sprint.description), sprints)
-    data = map(lambda sprint: sprint.points_delivered, sprints)
-    chart = chart_generator.generate(labels, data)
+    project_id = request.GET['project']
+    chart = request.GET['chart']
+    if chart == 'points_per_sprint':
+        sprints = Sprint.objects.filter(project__id=project_id)
+        labels = map(lambda sprint: str(sprint.description), sprints)
+        points = map(lambda sprint: sprint.points_delivered, sprints)
+        chart = chart_generator.generate(labels, [points])
+    elif chart == 'tests_per_sprint':
+        sprints = Sprint.objects.filter(project__id=project_id)
+        labels = map(lambda sprint: str(sprint.description), sprints)
+        tests = map(lambda sprint: sprint.number_of_tests, sprints)
+        chart = chart_generator.generate(labels, [tests])
+    elif chart == 'delivered_per_estimated_per_persprint':
+        sprints = Sprint.objects.filter(project__id=project_id)
+        labels = map(lambda sprint: str(sprint.description), sprints)
+        points_estimated = map(lambda sprint: sprint.points_estimated, sprints)
+        points_delivered = map(lambda sprint: sprint.points_delivered, sprints)
+        chart = chart_generator.generate(labels, [points_estimated, points_delivered])
+
     jsonString = json.dumps(chart, ensure_ascii=False)
     return render(request, 'chart.html', {'chart': jsonString})
 
 def admin_charts(request):
-    return render(request, 'admin_charts.html')
+    projects = Project.objects.all()
+    return render(request, 'admin_charts.html', {'projects': projects})
 
 def logout(request):
     return session_manager.delete_session(request, render(request, 'logout.html'))
@@ -166,22 +198,35 @@ def get_trello_id(project_id):
     return get_project(project_id)[0][2]
 
 def update_sprint(project_id, total_points_delivered, total_unit_tests):
-    sprint = Sprint.objects.filter(project__id=project_id, points_delivered=None)
-    if len(sprint) == 0:
-        return 'Sprint does not exist or already scanned'
-    current_sprint = sprint[0]
-    current_sprint.points_delivered=total_points_delivered
-    current_sprint.number_of_tests=total_unit_tests
-    current_sprint.date_scanned=date.today()
-    current_sprint.save()
-    return 'Success'
+    current_sprint = None
+    try:
+        sprint = Sprint.objects.filter(project__id=project_id, points_delivered=None)
+        if len(sprint) == 0:
+            return 'Sprint does not exist or already scanned'
+        current_sprint = sprint[0]
+        current_sprint.points_delivered=total_points_delivered
+        current_sprint.number_of_tests=total_unit_tests
+        current_sprint.date_scanned=date.today()
+        current_sprint.save()
+    except Exception as e:
+        print e
+    return ('Success', current_sprint)
 
 def scan_process(request):
     project_id = request.GET['project_id']
-    cards, log, total_unit_tests, total_points_delivered = scan_trello(get_trello_id(project_id))
-    message = update_sprint(project_id, total_points_delivered, total_unit_tests)
+    cards, log, total_unit_tests, total_points_delivered, card_list = scan_trello(get_trello_id(project_id))
+    message, sprint = update_sprint(project_id, total_points_delivered, total_unit_tests)
+    for card in card_list:
+        card.sprint = sprint
+        card.save()
+    log_final = []
+    log_final.append('Customer: {0}'.format(sprint.project.customer.name))
+    log_final.append('Sprint: {0}'.format(sprint.description))
+    log_final.append('Period: from {0} to {1}'.format(sprint.start_date, sprint.end_date))
+    log_final.append('')
+    log_final.extend(log)
 
-    return render(request, 'log.html', {'cards': cards, 'log': log, 'message': message})
+    return render(request, 'log.html', {'cards': cards, 'log': log_final, 'message': message, 'total_points_delivered': total_points_delivered, 'total_unit_tests': total_unit_tests})
 
 def get_customer(id):
     return map(lambda c: (c.id, c.name, c.country, c.operation_area), [Customer.objects.get(id=id)])

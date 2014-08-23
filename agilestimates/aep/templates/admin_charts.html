@@ -22,28 +22,46 @@
 		</ol>
 	</div>
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-4">
 			<h2>Admin Charts</h2>
 			<br>
 			<table>
-				<tr>
-					<td>
-                    <a href="javascript:generate('Points delivered per sprints')">Points delivered per sprints</a>
-                    </td>
+                <tr>
+                    <td>Project:
+                        <select name="project" id="project">
+                            <option value=9999>-- Choose --</option>
+                            {% for project in projects %}
+                                <option value={{ project.id }}>{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    <td>
+                </tr>
+                <tr>
+					<td>&nbsp;</td>
 				</tr>
+				<tr>
+					<td><a href="javascript:generate('points_per_sprint')">Points delivered per sprints</a></td>
+				</tr>
+                <tr>
+                    <td><a href="javascript:generate('tests_per_sprint')">Number of tests per sprints</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:generate('delivered_per_estimated_per_persprint')">Points delivered per points estimated per sprints</a></td>
+                </tr>
 			</table>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-8">
 			<br>
-			<div id="chart"></div><canvas id="myChart" width="400" height="400"></canvas>
+			<div id="chart"></div><canvas id="myChart" width="700" height="400"></canvas>
 		</div>
 	</div>
 </div>
 <script language="javascript">
     function generate(chart) {
     $(function() {
+            var project = $('#project').find(":selected").val();
             document.getElementById('chart').value = chart
-	      	var posting = $.get('/aep/generate_chart', { chart: chart } );
+	      	var posting = $.get('/aep/generate_chart', { chart: chart, project: project } );
 	        posting.done(function(data) {
             var ctx = document.getElementById('myChart').getContext('2d');
             var barChart = new Chart(ctx).Line(JSON.parse(data));
