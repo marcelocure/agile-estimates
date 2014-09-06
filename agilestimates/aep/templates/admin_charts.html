@@ -52,19 +52,38 @@
 		</div>
 		<div class="col-md-8">
 			<br>
-			<div id="chart"></div><canvas id="myChart" width="700" height="400"></canvas>
+			<div id="chart"></div>
+            <div id="legend"></div>
+            <canvas id="myChart" width="700" height="400"></canvas>
 		</div>
 	</div>
 </div>
 <script language="javascript">
     function generate(chart) {
     $(function() {
+            var title = ""
+            if (chart == "points_per_sprint")
+                title = "Points delivered per Sprint"
+            if (chart == "tests_per_sprint")
+                title = "Tests Created per Sprint"
+            if (chart == "delivered_per_estimated_per_persprint")
+                title = "Points Estimated per Points Delivered per Sprint"
             var project = $('#project').find(":selected").val();
             document.getElementById('chart').value = chart
 	      	var posting = $.get('/aep/generate_chart', { chart: chart, project: project } );
 	        posting.done(function(data) {
             var ctx = document.getElementById('myChart').getContext('2d');
-            var barChart = new Chart(ctx).Line(JSON.parse(data));
+            json_data = JSON.parse(data)
+            var barChart = new Chart(ctx).Line(json_data);
+            datasets = json_data["datasets"]
+            legend = "<div style='float: right'><table border='0px' >"
+            for (var key in datasets) {
+               legend = legend + "<tr><td><div style='background-color:" + datasets[key]["strokeColor"] + "; width:30px; height:6px'>&nbsp;</td>"
+               legend = legend + "<td>" + datasets[key]["label"] + "</td></tr>"
+            }
+            legend = legend + "<table></div>"
+            $('#chart').html(title);
+            $('#legend').html(legend);
 	        });
 	      });
 	}

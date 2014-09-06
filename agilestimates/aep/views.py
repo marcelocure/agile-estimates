@@ -31,18 +31,18 @@ def generate_chart(request):
     if chart == 'points_per_sprint':
         sprints = Sprint.objects.filter(project__id=project_id)
         labels = map(lambda sprint: str(sprint.description), sprints)
-        points = map(lambda sprint: sprint.points_delivered, sprints)
+        points = {'data': map(lambda sprint: sprint.points_delivered, sprints), 'title': 'Points Delivered'}
         chart = chart_generator.generate(labels, [points])
     elif chart == 'tests_per_sprint':
         sprints = Sprint.objects.filter(project__id=project_id)
         labels = map(lambda sprint: str(sprint.description), sprints)
-        tests = map(lambda sprint: sprint.number_of_tests, sprints)
+        tests = {'data': map(lambda sprint: sprint.number_of_tests, sprints), 'title': 'Tests Created'}
         chart = chart_generator.generate(labels, [tests])
     elif chart == 'delivered_per_estimated_per_persprint':
         sprints = Sprint.objects.filter(project__id=project_id)
         labels = map(lambda sprint: str(sprint.description), sprints)
-        points_estimated = map(lambda sprint: sprint.points_estimated, sprints)
-        points_delivered = map(lambda sprint: sprint.points_delivered, sprints)
+        points_estimated = {'data': map(lambda sprint: sprint.points_estimated, sprints), 'title': 'Points Estimated'}
+        points_delivered = {'data': map(lambda sprint: sprint.points_delivered, sprints), 'title': 'Points Delivered'}
         chart = chart_generator.generate(labels, [points_estimated, points_delivered])
 
     jsonString = json.dumps(chart, ensure_ascii=False)
@@ -310,4 +310,3 @@ def login_process(request):
     else:
         response = render(request, 'team.html', {'username': username})
     return session_manager.create_session(response, username)
-
