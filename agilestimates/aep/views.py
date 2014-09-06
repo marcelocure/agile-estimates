@@ -310,3 +310,4 @@ def login_process(request):
     else:
         response = render(request, 'team.html', {'username': username})
     return session_manager.create_session(response, username)
+
