@@ -40,13 +40,19 @@
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
-					<td><a href="javascript:generate('points_per_sprint')">Points delivered per sprints</a></td>
+					<td><a href="javascript:generate('points_per_sprint')">Points Delivered per Sprint</a></td>
 				</tr>
                 <tr>
-                    <td><a href="javascript:generate('tests_per_sprint')">Number of tests per sprints</a></td>
+                    <td><a href="javascript:generate('tests_per_sprint')">Number of Tests Created per Sprint</a></td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:generate('delivered_per_estimated_per_persprint')">Points delivered per points estimated per sprints</a></td>
+                    <td><a href="javascript:generate('delivered_per_estimated_per_persprint')">Points Delivered per Points Estimated per Sprint</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:generate('tests_per_estimated_per_persprint')">Number of Tests Created per Points Delivered per Sprint</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:generate('us_per_sprint')">Number of Stories Delivered per Sprint</a></td>
                 </tr>
 			</table>
 		</div>
@@ -68,6 +74,10 @@
                 title = "Tests Created per Sprint"
             if (chart == "delivered_per_estimated_per_persprint")
                 title = "Points Estimated per Points Delivered per Sprint"
+            if (chart == "tests_per_estimated_per_persprint")
+                title = "Number of Tests Created per Points Delivered per Sprint"
+            if (chart == "us_per_sprint")
+                title = "Number of Stories Delivered per Sprint"
             var project = $('#project').find(":selected").val();
             document.getElementById('chart').value = chart
 	      	var posting = $.get('/aep/generate_chart', { chart: chart, project: project } );

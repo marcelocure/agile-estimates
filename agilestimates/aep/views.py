@@ -44,6 +44,23 @@ def generate_chart(request):
         points_estimated = {'data': map(lambda sprint: sprint.points_estimated, sprints), 'title': 'Points Estimated'}
         points_delivered = {'data': map(lambda sprint: sprint.points_delivered, sprints), 'title': 'Points Delivered'}
         chart = chart_generator.generate(labels, [points_estimated, points_delivered])
+    elif chart == 'tests_per_estimated_per_persprint':
+        sprints = Sprint.objects.filter(project__id=project_id)
+        labels = map(lambda sprint: str(sprint.description), sprints)
+        points_estimated = {'data': map(lambda sprint: sprint.number_of_tests, sprints), 'title': 'Tests Created'}
+        points_delivered = {'data': map(lambda sprint: sprint.points_delivered, sprints), 'title': 'Points Delivered'}
+        chart = chart_generator.generate(labels, [points_estimated, points_delivered])
+    elif chart == 'us_per_sprint':
+        sprints = Sprint.objects.filter(project__id=project_id)
+        labels = map(lambda sprint: str(sprint.description), sprints)
+        card_list = []
+        sprint_list = []
+        for sprint in sprints:
+            card_list.append(Card.objects.filter(sprint__id=sprint.id).count())
+            sprint_list.append(sprint.description)
+        cards = {'data': card_list, 'title': 'Total Cards'}
+        labels = sprint_list
+        chart = chart_generator.generate(labels, [cards])
 
     jsonString = json.dumps(chart, ensure_ascii=False)
     return render(request, 'chart.html', {'chart': jsonString})
