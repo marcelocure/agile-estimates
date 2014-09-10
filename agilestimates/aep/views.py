@@ -67,7 +67,11 @@ def generate_chart(request):
 
 def admin_charts(request):
     projects = Project.objects.all()
-    return render(request, 'admin_charts.html', {'projects': projects})
+    return render(request, 'admin_charts.html', {'projects': projects, 'profile': 'admin'})
+
+def user_charts(request):
+    projects = Project.objects.all()
+    return render(request, 'admin_charts.html', {'projects': projects, 'profile': 'team'})
 
 def logout(request):
     return session_manager.delete_session(request, render(request, 'logout.html'))

@@ -5,13 +5,21 @@
 {% block title %}Agile Estimates Support - Home{% endblock %}
 
 {% block menuItems %}
-<li><a href="/aep/customers/">Customers</a></li>
-<li><a href="/aep/projects">Projects</a></li>
-<li><a href="/aep/profiles">Profiles</a></li>
-<li><a href="/aep/users">Users</a></li>
-<li class="active"><a href="/aep/acharts">Charts</a></li>
-<li><a href="/aep/pending_scans">Pending Scans</a></li>
-<li><a href="/aep/logout/">Logout</a></li>
+    {%if profile == "admin" %}
+        <li><a href="/aep/customers/">Customers</a></li>
+        <li><a href="/aep/projects">Projects</a></li>
+        <li><a href="/aep/profiles">Profiles</a></li>
+        <li><a href="/aep/users">Users</a></li>
+        <li class="active"><a href="/aep/acharts">Charts</a></li>
+        <li><a href="/aep/pending_scans">Pending Scans</a></li>
+        <li><a href="/aep/logout/">Logout</a></li>
+     {% else %}
+        <li><a href="/aep/sprints/">Sprint Registration</a></li>
+        <li><a href="/aep/scan_project/">Scan Project</a></li>
+        <li><a href="/aep/my_projects/">My projects</a></li>
+        <li class="active"><a href="/aep/ucharts/">Charts</a></li>
+        <li><a href="/aep/logout/">Logout</a></li>
+     {% endif %}
 {% endblock %}
 
 {% block mainContainer %}
@@ -23,7 +31,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-4">
-			<h2>Admin Charts</h2>
+			<h2>Charts</h2>
 			<br>
 			<table>
                 <tr>
