@@ -9,6 +9,11 @@ from datetime import date
 import chart_generator
 import json
 
+def pending_scans(request):
+    sprints = Sprint.objects.filter(date_scanned=None, end_date=date.today())
+    projects = map(lambda s: {'sprint': s.description, 'project': s.project}, sprints)
+    return render(request, 'pending_scans.html', {'sprintproj': projects, 'length': len(projects)})
+
 def get_cards(request):
     sprint_id = request.GET['sprint_id']
     cards = Card.objects.filter(sprint__id=sprint_id)
