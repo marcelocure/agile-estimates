@@ -37,7 +37,7 @@ class TrelloScannerTests(TestCase):
         self.assertEqual(total_points_delivered, 12)
 
     def test_build_output_dict(self):
-        card = {'description': 'Start Date: 2014-05-05\nEnd Date: 2014-05-08\nPoints: 2\nUnit Tests: 8\ntestestes\ntestestest\n'}
+        card = {'description': 'Start Date: 2014-05-05\nEnd Date: 2014-05-08\nPoints: 2\nUnit Tests: 8\ntestestes\ntestestest\n', 'name': 'name1', 'url': 'http://www.mysite.com'}
         card_dict = trello_scanner.build_output_dict(card)
         self.assertEqual(card_dict['start_date'], '2014-05-05')
         self.assertEqual(card_dict['end_date'], '2014-05-08')
@@ -46,8 +46,8 @@ class TrelloScannerTests(TestCase):
 
     def test_parse_cards(self):
         cards = []
-        cards.append({'description': 'Start Date: 2014-05-05\nEnd Date: 2014-05-08\nPoints: 2\nUnit Tests: 8\ntestestes\ntestestest\n'})
-        cards.append({'description': 'Start Date: 2014-04-05\nEnd Date: 2014-04-08\nPoints: 4\nUnit Tests: 10\ntestestes\ntestestest\n'})
+        cards.append({'description': 'Start Date: 2014-05-05\nEnd Date: 2014-05-08\nPoints: 2\nUnit Tests: 8\ntestestes\ntestestest\n', 'name': 'name1', 'url': 'http://www.mysite.com'})
+        cards.append({'description': 'Start Date: 2014-04-05\nEnd Date: 2014-04-08\nPoints: 4\nUnit Tests: 10\ntestestes\ntestestest\n', 'name': 'name1', 'url': 'http://www.mysite.com'})
         cards_dict = trello_scanner.parse_cards(cards)
 
         self.assertEqual(len(cards_dict), 2)
