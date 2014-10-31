@@ -1,22 +1,41 @@
-from trello_api import get_connection, get_board, get_list, get_list_cards
+from trello_api import get_connection, get_board, get_done_list, get_list_cards
 from models import Card, Sprint
+import traceback
 
 def scan(trello_board_id):
     try:
         log = []
-        conn = get_connection()
+        status, conn = get_connection()
+        if conn is None:
+            log.append(status)
+            return (True, None, log, None, None, None)
         log.append('Reading board')
-        board = get_board(conn, trello_board_id)
-        t_list = get_list(board, 'Done')
-        cards = get_list_cards(t_list)
+
+        status, board = get_board(conn, trello_board_id)
+        if board is None:
+            log.append(status)
+            return (True, None, log, None, None, None)
+
+        status, t_list = get_done_list(board)
+        if t_list is None:
+            log.append(status)
+            return (True, None, log, None, None, None)
+
+        status, cards = get_list_cards(t_list)
+        if cards is None:
+            log.append(status)
+            return (True, None, log, None, None, None)
+
         cards_dict = parse_cards(cards)
+        #for c in cards_dict:
+        #    print c
         card_list = create_card_list(cards_dict)
         total_unit_tests, total_points_delivered = summarize_metrics(cards_dict)
         log.append('Cards collected: ')
-        return (cards, log, total_unit_tests, total_points_delivered, card_list)
+        return (False, cards, log, total_unit_tests, total_points_delivered, card_list)
     except Exception as e:
         log.append('Error connecting to trello {0}'.format(e))
-        print e
+        print traceback.format_exc()
 
 def summarize_metrics(cards_dict):
     total_unit_tests = count_unit_tests(cards_dict)
@@ -32,7 +51,7 @@ def count_unit_tests(cards_dict):
 def count_points_delivered(cards_dict):
     total_points_delivered = 0
     for card_dict in cards_dict:
-        total_points_delivered = total_points_delivered + int(card_dict['points'])
+        total_points_delivered = total_points_delivered + float(card_dict['points'])
     return total_points_delivered
 
 def parse_cards(cards):

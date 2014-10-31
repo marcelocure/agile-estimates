@@ -10,7 +10,12 @@
         Total Unit Tests created {{ total_unit_tests }}
 
 {% else %}
-    {{ message }}
+    {% if message == 'Error' %}
+        {% for l in log %}{{ l }}
+        {% endfor %}
+    {% else %}
+        {{ message }}
+    {% endif %}
 {% endif %}
 
 </textarea>

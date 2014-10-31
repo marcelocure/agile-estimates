@@ -1,4 +1,6 @@
 from django.shortcuts import render
+import traceback
+
 import session_manager
 import crypt_utils
 from django.db import connection as conn
@@ -159,8 +161,10 @@ def edit_user(request, id):
     return render(request, 'edit_user.html', {'user': get_user(id), 'profiles': get_profile_list()})
 
 def edit_project(request, id):
+    print 'hdasudhsaudhasuhduashduashduashduahdusadhasudhasudhsua {0}'.format(get_project(id)[0][1])
     return render(request, 'edit_project.html',{'users_registered': get_user_list_from_project(id),
                                                 'users_not_registered': get_user_list_not_in_project(id),
+                                                'cust': get_project(id)[0][3],
                                                 'project': get_project(id),
                                                 'customers': get_customer_list()})
 
@@ -223,6 +227,11 @@ def scan(request):
 def get_trello_id(project_id):
     return get_project(project_id)[0][2]
 
+def get_sprint(project_id):
+    sprint = Sprint.objects.filter(project__id=project_id, points_delivered=None)
+    print sprint
+    return sprint
+
 def update_sprint(project_id, total_points_delivered, total_unit_tests):
     current_sprint = None
     try:
@@ -239,20 +248,30 @@ def update_sprint(project_id, total_points_delivered, total_unit_tests):
     return ('Success', current_sprint)
 
 def scan_process(request):
-    project_id = request.GET['project_id']
-    cards, log, total_unit_tests, total_points_delivered, card_list = scan_trello(get_trello_id(project_id))
-    message, sprint = update_sprint(project_id, total_points_delivered, total_unit_tests)
-    for card in card_list:
-        card.sprint = sprint
-        card.save()
-    log_final = []
-    log_final.append('Customer: {0}'.format(sprint.project.customer.name))
-    log_final.append('Sprint: {0}'.format(sprint.description))
-    log_final.append('Period: from {0} to {1}'.format(sprint.start_date, sprint.end_date))
-    log_final.append('')
-    log_final.extend(log)
+    try:
+        project_id = request.GET['project_id']
+        if len(get_sprint(project_id)) == 0:
+            return render(request, 'log.html', {'cards': None, 'log': None, 'message': 'Sprint not found, please check if there is a sprint open', 'total_points_delivered': None, 'total_unit_tests': None})
+        error, cards, log, total_unit_tests, total_points_delivered, card_list = scan_trello(get_trello_id(project_id))
+        if error:
+            return render(request, 'log.html', {'cards': None, 'log': log, 'message': 'Error', 'total_points_delivered': None, 'total_unit_tests': None})
 
-    return render(request, 'log.html', {'cards': cards, 'log': log_final, 'message': message, 'total_points_delivered': total_points_delivered, 'total_unit_tests': total_unit_tests})
+        message, sprint = update_sprint(project_id, total_points_delivered, total_unit_tests)
+        for card in card_list:
+            card.sprint = sprint
+            if card.end_date == '':
+                card.end_date = date.today()
+            card.save()
+        log_final = []
+        log_final.append('Customer: {0}'.format(sprint.project.customer.name))
+        log_final.append('Sprint: {0}'.format(sprint.description))
+        log_final.append('Period: from {0} to {1}'.format(sprint.start_date, sprint.end_date))
+        log_final.append('')
+        log_final.extend(log)
+
+        return render(request, 'log.html', {'cards': cards, 'log': log_final, 'message': message, 'total_points_delivered': total_points_delivered, 'total_unit_tests': total_unit_tests})
+    except:
+        print traceback.format_exc()
 
 def get_customer(id):
     return map(lambda c: (c.id, c.name, c.country, c.operation_area), [Customer.objects.get(id=id)])

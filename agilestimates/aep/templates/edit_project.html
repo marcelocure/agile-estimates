@@ -40,7 +40,7 @@
 					<td>Customer: </td>
 					<td><select name="customer" id="customer">
 					{% for id, name in customers %}
-						{% if name == customer %}
+						{% if name == cust %}
 							<option value={{ id }} selected>{{ name }}</option>
 						{%else %}
 							<option value={{ id }}>{{ name }}</option>

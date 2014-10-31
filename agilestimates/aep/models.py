@@ -46,8 +46,8 @@ class Sprint(models.Model):
     project = models.ForeignKey(Project, verbose_name="project")
     start_date = models.DateField()
     end_date = models.DateField()
-    points_estimated = models.IntegerField(null=True)
-    points_delivered = models.IntegerField(null=True)
+    points_estimated = models.FloatField(null=True)
+    points_delivered = models.FloatField(null=True)
     number_of_tests = models.IntegerField(null=True)
     date_scanned = models.DateField(null=True)
 
@@ -58,5 +58,5 @@ class Card(models.Model):
     description = models.CharField(max_length=1000)
     start_date = models.DateField()
     end_date = models.DateField()
-    points_created = models.IntegerField(null=True)
+    points_created = models.FloatField(null=True)
     tests_created = models.IntegerField(null=True)
