@@ -1,5 +1,83 @@
+# -*- coding: utf-8 -*
 from django.test import TestCase
-import trello_scanner, encoding_utils, crypt_utils
+from agilestimates.settings import trello_api_key, trello_auth_token
+from mock import MagicMock, Mock
+from trollop import TrelloConnection, Board, List, Card
+
+import trello_scanner, encoding_utils, crypt_utils, trello_api
+
+class TrelloApiTests(TestCase):
+    def test_get_board(self):
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        conn.get_board = MagicMock(return_value={'id': '12Hsd2', 'name': 'mocked board'})
+        (status, board) = trello_api.get_board(conn, '12Hsd2')
+        self.assertEqual(status, None)
+        self.assertEqual(board['id'], '12Hsd2')
+        self.assertEqual(board['name'], 'mocked board')
+
+    def test_get_board_error(self):
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        conn.get_board = Mock(side_effect=KeyError('error'))
+        (status, board) = trello_api.get_board(conn, '12Hsd2')
+        self.assertEqual(status, 'Could not get board')
+        self.assertEqual(board, None)
+
+    def test_get_done_list(self):
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        l1 = List(conn, '1')
+        l1.name = u'Backlog'
+        l2 = List(conn, '2')
+        l2.name = u'In progress'
+        l3 = List(conn, '3')
+        l3.name = u'Done'
+        mocked_board = Board(conn, '1')
+        mocked_board.lists = [l1, l2, l3]
+        conn.get_board = MagicMock(return_value=mocked_board)
+        (status, done_list) = trello_api.get_done_list(mocked_board)
+        self.assertEqual(status, None)
+        self.assertEqual(done_list.name, 'Done')
+
+    def test_get_done_list_not_found(self):
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        l1 = List(conn, '1')
+        l1.name = u'Backlog'
+        l2 = List(conn, '2')
+        l2.name = u'In progress'
+        l3 = List(conn, '3')
+        l3.name = u'Fast Lane'
+        mocked_board = Board(conn, '1')
+        mocked_board.lists = [l1, l2, l3]
+        conn.get_board = MagicMock(return_value=mocked_board)
+        (status, done_list) = trello_api.get_done_list(mocked_board)
+        self.assertEqual(status, 'Could not get done list')
+        self.assertEqual(done_list, None)
+
+    def test_get_list_cards(self):
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        l1 = List(conn, '3')
+        l1.name = u'Done'
+        c1 = Card(conn, '1')
+        c1.name = 'card1'
+        c1.desc = 'desc for card1'
+        c1.url = 'trello.com/c/19283ndks'
+        c2 = Card(conn, '2')
+        c2.name = 'card2'
+        c2.desc = 'desc for card2'
+        c2.url = 'trello.com/c/09sajkds'
+        l1.cards = [c1, c2]
+        mocked_board = Board(conn, '1')
+        mocked_board.lists = [l1]
+        conn.get_board = MagicMock(return_value=mocked_board)
+        (status, done_list) = trello_api.get_done_list(mocked_board)
+        (status, cards) = trello_api.get_list_cards(done_list)
+        self.assertEqual(status, None)
+        self.assertEqual(cards[0]['name'], 'card1')
+        self.assertEqual(cards[0]['description'], 'desc for card1')
+        self.assertEqual(cards[0]['url'], 'trello.com/c/19283ndks')
+        self.assertEqual(cards[1]['name'], 'card2')
+        self.assertEqual(cards[1]['description'], 'desc for card2')
+        self.assertEqual(cards[1]['url'], 'trello.com/c/09sajkds')
+
 
 class TrelloScannerTests(TestCase):
     def test_remove_label(self):
@@ -62,6 +140,15 @@ class TestEncodingUtils(TestCase):
     def test_normalize_value_string(self):
         result = encoding_utils.normalize_value('test')
         self.assertEqual(result, 'test')
+
+    def test_remove_accents_with_accents(self):
+        result = encoding_utils.remove_accents(u'tést')
+        self.assertEqual(result, 'test')
+
+    def test_remove_accents_without_accents(self):
+        result = encoding_utils.remove_accents(u'test')
+        self.assertEqual(result, 'test')
+
 
 class TestCryptUtils(TestCase):
     def test_decrypt(self):
