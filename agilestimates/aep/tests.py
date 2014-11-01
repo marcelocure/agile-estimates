@@ -7,6 +7,12 @@ from trollop import TrelloConnection, Board, List, Card
 import trello_scanner, encoding_utils, crypt_utils, trello_api
 
 class TrelloApiTests(TestCase):
+    def test_get_connection(self):
+        trello_api.conn = MagicMock(return_value=TrelloConnection(trello_api_key, trello_auth_token))
+        (status, conn) = trello_api.get_connection()
+        self.assertEqual(status, None)
+        self.assertIsInstance(conn, TrelloConnection)
+
     def test_get_board(self):
         conn = TrelloConnection(trello_api_key, trello_auth_token)
         conn.get_board = MagicMock(return_value={'id': '12Hsd2', 'name': 'mocked board'})
@@ -77,6 +83,11 @@ class TrelloApiTests(TestCase):
         self.assertEqual(cards[1]['name'], 'card2')
         self.assertEqual(cards[1]['description'], 'desc for card2')
         self.assertEqual(cards[1]['url'], 'trello.com/c/09sajkds')
+
+    def test_get_list_cards_error(self):
+        (status, cards) = trello_api.get_list_cards(None)
+        self.assertEqual(status, 'Could not get list cards')
+        self.assertEqual(cards, None)
 
 
 class TrelloScannerTests(TestCase):

@@ -7,10 +7,11 @@ import traceback
 
 def get_connection():
     try:
-        return (None, TrelloConnection(trello_api_key, trello_auth_token))
+        conn = TrelloConnection(trello_api_key, trello_auth_token)
+        return (None, conn)
     except:
         print traceback.format_exc()
-        return ('Could not get conection', None)
+        return ('Could not get connection', None)
 
 def get_board(conn, board_id): 
     try:

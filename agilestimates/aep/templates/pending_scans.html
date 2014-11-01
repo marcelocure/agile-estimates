@@ -30,10 +30,14 @@
             {% endif %}
 			<br>
 			<table>
-
+                <tr>
+					<td>Project: </td><td>Customer</td><td>Sprint</td>
+				</tr>
                 {% for sp in sprintproj %}
 				<tr>
-					<td>Project: </td><td>{{sp.project.name}} ({{sp.project.customer.name}}) - {{sp.sprint}}</td>
+					<td>{{sp.project.name}}</td>
+                    <td>{{sp.project.customer.name}}</td>
+                    <td>{{sp.sprint}}</td>
 				</tr>
                 {% endfor %}
 			</table>
