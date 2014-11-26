@@ -103,9 +103,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+#get a never expires token: https://trello.com/1/authorize?key=500883312ee38a44d357b1ac15a17524&name=Agile+Estimates+Support&expiration=never&response_type=token
 trello_api_key = '500883312ee38a44d357b1ac15a17524'
-trello_auth_token = '5e6a4b22d58ffd3e79c59ceba2f72cc3023be1397284b005ee57090be0a5e1e3'
+trello_auth_token = '4e78fd23dc573ab48081031048be2544414748c5b707ba2721a33d291ce750c3'
 
 import sys
 

@@ -16,8 +16,18 @@
         <td>{{ sprint.start_date }}</td>
         <td>{{ sprint.end_date }}</td>
         <td>{{ sprint.points_estimated }}</td>
-        <td>{{ sprint.points_delivered }}</td>
-        <td>{{ sprint.number_of_tests }}</td>
+        <td>
+            {% if sprint.points_delivered == None %}
+            --
+            {% else %}
+            {{ sprint.points_delivered }}
+            {% endif %}</td>
+        <td>
+            {% if sprint.number_of_tests == None %}
+            --
+            {% else %}
+            {{ sprint.number_of_tests }}
+            {% endif %}</td>
         <td><a href="#" onClick="open_card({{sprint.id}});" data-toggle="modal" style="color: #3c9dea;">Open</a></td>
     </tr>
 {% endfor %}
